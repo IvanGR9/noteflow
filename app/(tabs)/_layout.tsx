@@ -56,6 +56,9 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="notas/[id]" options={{ href: null }} />
+      <Tabs.Screen name="checklists/[id]" options={{ href: null }} />
+      <Tabs.Screen name="ideas/[id]" options={{ href: null }} />
     </Tabs>
   );
 }
