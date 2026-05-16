@@ -1,0 +1,58 @@
+# NoteFlow — Cursor Rules
+
+## Stack
+- Expo SDK 55 (bare-ish, managed workflow)
+- React Native 0.83
+- TypeScript (strict mode, no `any`)
+- Expo Router v4 (file-based routing)
+- Zustand (global state — no Context API for state)
+- FlashList from @shopify/flash-list (no FlatList ever)
+- Zod (runtime validation of user input and persisted data)
+- AsyncStorage via @react-native-async-storage/async-storage
+
+## Project structure
+```
+app/              # Expo Router screens
+  (tabs)/         # Tab navigator group
+store/            # Zustand stores only
+components/
+  items/          # Note-type cards (NoteCard, ChecklistCard, IdeaCard)
+  ui/             # Reusable primitives (Button, Input, Sheet, etc.)
+types/index.ts    # All shared TypeScript types/interfaces
+constants/theme.ts# Design tokens (colors, spacing, typography)
+lib/utils.ts      # Pure utility functions (no side effects)
+hooks/            # Custom React hooks
+docs/             # Project documentation (not shipped)
+```
+
+## Naming conventions
+- Components: PascalCase (`NoteCard.tsx`)
+- Hooks: camelCase prefixed with `use` (`useNotes.ts`)
+- Stores: camelCase suffixed with `Store` (`notesStore.ts`)
+- Types/interfaces: PascalCase (`AnyNote`, `ChecklistItem`)
+- Constants: SCREAMING_SNAKE_CASE for primitives, PascalCase for objects (`Colors`, `MAX_TITLE_LENGTH`)
+- Files: kebab-case for non-component files (`nueva-nota.tsx` follows Expo Router convention)
+
+## Architecture rules
+- NEVER use FlatList or ScrollView for long lists — always FlashList
+- NEVER use React Context API for global or cross-screen state — use Zustand
+- ALWAYS type everything with TypeScript strict. No implicit `any`, no type assertions without comment
+- ALWAYS validate data at boundaries (user input, AsyncStorage reads) with Zod
+- Stores live in `store/`, one file per domain. No business logic inside components
+- Screens are thin: they read from store + call store actions. No local state for persisted data
+- `lib/utils.ts` contains pure functions only — no imports from store or components
+- Design tokens come exclusively from `constants/theme.ts` — no hardcoded hex values in components
+- Use `useColorScheme` from `react-native` to pick between `Colors.dark` and `Colors.light`
+
+## Code style
+- Functional components only, no class components
+- Prefer named exports over default exports (except Expo Router screens which must be default)
+- Keep components under ~150 lines; extract sub-components when exceeded
+- No inline styles beyond trivial one-off flex: no StyleSheet.create either — use a styles object at bottom of file
+- Prefer `StyleSheet.create` for static styles and inline only for dynamic (theme-based) values
+
+## DO NOT
+- Install or suggest expo-navigation (use Expo Router)
+- Use `require()` for images in production code; use typed `import`
+- Commit secrets or API keys
+- Add comments that just restate what the code does

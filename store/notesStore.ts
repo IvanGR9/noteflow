@@ -1,0 +1,105 @@
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { AnyNote, Note, ChecklistNote, IdeaNote, ChecklistItem, NoteType } from '../types';
+
+interface NotesState {
+  notes: Note[];
+  checklists: ChecklistNote[];
+  ideas: IdeaNote[];
+  _hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
+  addNote: (note: AnyNote) => void;
+  updateNote: (id: string, updates: Partial<AnyNote>) => void;
+  deleteNote: (id: string, type: NoteType) => void;
+  toggleChecklistItem: (noteId: string, itemId: string) => void;
+  addChecklistItem: (noteId: string, item: ChecklistItem) => void;
+  deleteChecklistItem: (noteId: string, itemId: string) => void;
+}
+
+const now = () => new Date().toISOString();
+
+export const useNotesStore = create<NotesState>()(
+  persist(
+    (set) => ({
+      notes: [],
+      checklists: [],
+      ideas: [],
+      _hasHydrated: false,
+
+      setHasHydrated: (value) => set({ _hasHydrated: value }),
+
+      addNote: (note) =>
+        set((state) => {
+          if (note.type === 'note') return { notes: [note, ...state.notes] };
+          if (note.type === 'checklist') return { checklists: [note, ...state.checklists] };
+          return { ideas: [note, ...state.ideas] };
+        }),
+
+      updateNote: (id, updates) =>
+        set((state) => ({
+          notes: state.notes.map((n) =>
+            n.id === id ? ({ ...n, ...updates, updatedAt: now() } as Note) : n
+          ),
+          checklists: state.checklists.map((n) =>
+            n.id === id ? ({ ...n, ...updates, updatedAt: now() } as ChecklistNote) : n
+          ),
+          ideas: state.ideas.map((n) =>
+            n.id === id ? ({ ...n, ...updates, updatedAt: now() } as IdeaNote) : n
+          ),
+        })),
+
+      deleteNote: (id, type) =>
+        set((state) => {
+          if (type === 'note') return { notes: state.notes.filter((n) => n.id !== id) };
+          if (type === 'checklist') return { checklists: state.checklists.filter((n) => n.id !== id) };
+          return { ideas: state.ideas.filter((n) => n.id !== id) };
+        }),
+
+      toggleChecklistItem: (noteId, itemId) =>
+        set((state) => ({
+          checklists: state.checklists.map((n) =>
+            n.id === noteId
+              ? {
+                  ...n,
+                  updatedAt: now(),
+                  items: n.items.map((item) =>
+                    item.id === itemId ? { ...item, checked: !item.checked } : item
+                  ),
+                }
+              : n
+          ),
+        })),
+
+      addChecklistItem: (noteId, item) =>
+        set((state) => ({
+          checklists: state.checklists.map((n) =>
+            n.id === noteId ? { ...n, updatedAt: now(), items: [...n.items, item] } : n
+          ),
+        })),
+
+      deleteChecklistItem: (noteId, itemId) =>
+        set((state) => ({
+          checklists: state.checklists.map((n) =>
+            n.id === noteId
+              ? { ...n, updatedAt: now(), items: n.items.filter((item) => item.id !== itemId) }
+              : n
+          ),
+        })),
+    }),
+    {
+      name: 'noteflow-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+      // _hasHydrated es estado de runtime, no se persiste
+      partialize: ({ notes, checklists, ideas }) => ({ notes, checklists, ideas }),
+    }
+  )
+);
+
+export const selectAllNotesSorted = (state: NotesState): AnyNote[] =>
+  [...state.notes, ...state.checklists, ...state.ideas].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
