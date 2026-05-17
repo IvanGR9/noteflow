@@ -179,7 +179,7 @@ const STATUS_PILLS: Array<{ value: IdeaStatus; label: string }> = [
   { value: 'ready', label: 'Lista' },
 ];
 
-type IdeaFormData = { title: string; status: IdeaStatus; selectedColor: string; tags: string[] };
+type IdeaFormData = { title: string; content: string; status: IdeaStatus; selectedColor: string; tags: string[] };
 type IdeaFormErrors = { title?: string };
 type IdeaFormHandle = { getData: () => IdeaFormData };
 
@@ -189,10 +189,11 @@ const IdeaForm = forwardRef<IdeaFormHandle, { errors: IdeaFormErrors; initialDat
     (initialData?.status === 'discarded' ? 'raw' : initialData?.status) ?? 'raw'
   );
   const [selectedColor, setSelectedColor] = useState('#6366f1');
+  const [content, setContent] = useState(initialData?.content ?? '');
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
   const [tagInput, setTagInput] = useState('');
 
-  useImperativeHandle(ref, () => ({ getData: () => ({ title, status, selectedColor, tags }) }));
+  useImperativeHandle(ref, () => ({ getData: () => ({ title, content, status, selectedColor, tags }) }));
 
   const addTag = () => {
     const trimmed = tagInput.trim();
@@ -216,6 +217,16 @@ const IdeaForm = forwardRef<IdeaFormHandle, { errors: IdeaFormErrors; initialDat
         />
         {errors.title ? <Text style={formStyles.errorText}>{errors.title}</Text> : null}
       </View>
+
+      <TextInput
+        style={formStyles.contentInput}
+        value={content}
+        onChangeText={setContent}
+        placeholder="Describe tu idea (opcional)"
+        placeholderTextColor={Colors.dark.textMuted}
+        multiline
+        textAlignVertical="top"
+      />
 
       <View style={formStyles.pillsRow}>
         {STATUS_PILLS.map(({ value, label }) => {
@@ -384,13 +395,13 @@ export default function NuevaNotaScreen() {
       }
       setIdeaErrors({});
       if (isEditing && id) {
-        updateIdea(id, { title: result.data.title, status: raw!.status, tags: raw!.tags });
+        updateIdea(id, { title: result.data.title, content: raw!.content, status: raw!.status, tags: raw!.tags });
       } else {
         const ts = timestamp();
         const idea: IdeaNote = {
           id: newId(), type: 'idea',
           title: result.data.title,
-          content: '',
+          content: raw!.content,
           status: raw!.status,
           createdAt: ts, updatedAt: ts,
           pinned: false, tags: raw!.tags,

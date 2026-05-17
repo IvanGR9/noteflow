@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
     marginVertical: Spacing[1],
   },
   noteContent: {
-    fontSize: Typography.size.base,
-    color: Colors.dark.text,
-    lineHeight: Typography.size.base * Typography.lineHeight.relaxed,
+    fontSize: 15,
+    color: Colors.dark.textSecondary,
+    lineHeight: 22,
   },
 });
