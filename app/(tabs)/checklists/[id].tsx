@@ -33,7 +33,7 @@ export default function ChecklistDetailScreen() {
   if (!note) {
     return (
       <View style={styles.notFound}>
-        <Text style={styles.notFoundText}>Lista no encontrada</Text>
+        <Text style={styles.notFoundText}>Tarea no encontrada</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backBtnText}>Volver</Text>
         </TouchableOpacity>
@@ -49,9 +49,17 @@ export default function ChecklistDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + Spacing[4] }]}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)/checklists')} style={styles.backBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
-        </TouchableOpacity>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => router.replace('/(tabs)/checklists')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/nueva-nota', params: { type: 'checklist', id: note.id } })}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="create-outline" size={24} color={Colors.dark.accent} />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.title}>{note.title}</Text>
         <Text style={styles.date}>{formatDate(note.updatedAt)}</Text>
 
@@ -105,6 +113,11 @@ const styles = StyleSheet.create({
   notFoundText: {
     fontSize: Typography.size.md,
     color: Colors.dark.textSecondary,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backBtn: {
     alignSelf: 'flex-start',

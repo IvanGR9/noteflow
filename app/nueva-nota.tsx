@@ -14,8 +14,14 @@ import type { NoteType, Note, ChecklistNote, IdeaNote, ChecklistItem } from '../
 
 const TITLES: Record<NoteType, string> = {
   note: 'Nueva nota',
-  checklist: 'Nueva lista',
+  checklist: 'Nueva tarea',
   idea: 'Nueva idea',
+};
+
+const EDIT_TITLES: Record<NoteType, string> = {
+  note: 'Editar nota',
+  checklist: 'Editar tarea',
+  idea: 'Editar idea',
 };
 
 function resolveType(raw: string | string[] | undefined): NoteType {
@@ -54,9 +60,9 @@ const ideaSchema = z.object({
 type NoteFormErrors = { title?: string; content?: string };
 type NoteFormHandle = { getData: () => { title: string; content: string } };
 
-const NoteForm = forwardRef<NoteFormHandle, { errors: NoteFormErrors }>(({ errors }, ref) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+const NoteForm = forwardRef<NoteFormHandle, { errors: NoteFormErrors; initialData?: Note }>(({ errors, initialData }, ref) => {
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [content, setContent] = useState(initialData?.content ?? '');
 
   useImperativeHandle(ref, () => ({ getData: () => ({ title, content }) }));
 
@@ -97,9 +103,11 @@ type ChecklistDraftItem = { id: string; text: string };
 type ChecklistFormErrors = { title?: string; items?: string };
 type ChecklistFormHandle = { getData: () => { title: string; items: ChecklistDraftItem[] } };
 
-const ChecklistForm = forwardRef<ChecklistFormHandle, { errors: ChecklistFormErrors }>(({ errors }, ref) => {
-  const [title, setTitle] = useState('');
-  const [items, setItems] = useState<ChecklistDraftItem[]>([{ id: newId(), text: '' }]);
+const ChecklistForm = forwardRef<ChecklistFormHandle, { errors: ChecklistFormErrors; initialData?: ChecklistNote }>(({ errors, initialData }, ref) => {
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [items, setItems] = useState<ChecklistDraftItem[]>(
+    initialData ? initialData.items.map((i) => ({ id: i.id, text: i.text })) : [{ id: newId(), text: '' }]
+  );
 
   useImperativeHandle(ref, () => ({ getData: () => ({ title, items }) }));
 
@@ -120,7 +128,7 @@ const ChecklistForm = forwardRef<ChecklistFormHandle, { errors: ChecklistFormErr
           style={[formStyles.titleInput, !!errors.title && formStyles.inputError]}
           value={title}
           onChangeText={setTitle}
-          placeholder="Título de la lista"
+          placeholder="Título de la tarea"
           placeholderTextColor={Colors.dark.textMuted}
           maxLength={120}
           returnKeyType="next"
@@ -175,11 +183,13 @@ type IdeaFormData = { title: string; status: IdeaStatus; selectedColor: string; 
 type IdeaFormErrors = { title?: string };
 type IdeaFormHandle = { getData: () => IdeaFormData };
 
-const IdeaForm = forwardRef<IdeaFormHandle, { errors: IdeaFormErrors }>(({ errors }, ref) => {
-  const [title, setTitle] = useState('');
-  const [status, setStatus] = useState<IdeaStatus>('raw');
+const IdeaForm = forwardRef<IdeaFormHandle, { errors: IdeaFormErrors; initialData?: IdeaNote }>(({ errors, initialData }, ref) => {
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [status, setStatus] = useState<IdeaStatus>(
+    (initialData?.status === 'discarded' ? 'raw' : initialData?.status) ?? 'raw'
+  );
   const [selectedColor, setSelectedColor] = useState('#6366f1');
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
   const [tagInput, setTagInput] = useState('');
 
   useImperativeHandle(ref, () => ({ getData: () => ({ title, status, selectedColor, tags }) }));
@@ -280,11 +290,22 @@ IdeaForm.displayName = 'IdeaForm';
 
 export default function NuevaNotaScreen() {
   const router = useRouter();
-  const { type } = useLocalSearchParams<{ type?: string }>();
+  const { type, id } = useLocalSearchParams<{ type?: string; id?: string }>();
   const noteType = resolveType(type);
-  const screenTitle = TITLES[noteType];
+  const isEditing = !!id;
+  const screenTitle = isEditing ? EDIT_TITLES[noteType] : TITLES[noteType];
 
   const addNote = useNotesStore((state) => state.addNote);
+  const updateNote = useNotesStore((state) => state.updateNote);
+  const updateChecklist = useNotesStore((state) => state.updateChecklist);
+  const updateIdea = useNotesStore((state) => state.updateIdea);
+  const notes = useNotesStore((state) => state.notes);
+  const checklists = useNotesStore((state) => state.checklists);
+  const ideas = useNotesStore((state) => state.ideas);
+
+  const initialNote = id && noteType === 'note' ? notes.find((n) => n.id === id) : undefined;
+  const initialChecklist = id && noteType === 'checklist' ? checklists.find((n) => n.id === id) : undefined;
+  const initialIdea = id && noteType === 'idea' ? ideas.find((n) => n.id === id) : undefined;
 
   const noteRef = useRef<NoteFormHandle>(null);
   const checklistRef = useRef<ChecklistFormHandle>(null);
@@ -295,9 +316,6 @@ export default function NuevaNotaScreen() {
   const [ideaErrors, setIdeaErrors] = useState<IdeaFormErrors>({});
 
   const handleSave = () => {
-    const ts = timestamp();
-    const id = newId();
-
     if (noteType === 'note') {
       const result = noteSchema.safeParse(noteRef.current?.getData());
       if (!result.success) {
@@ -306,14 +324,19 @@ export default function NuevaNotaScreen() {
         return;
       }
       setNoteErrors({});
-      const note: Note = {
-        id, type: 'note',
-        title: result.data.title,
-        content: result.data.content,
-        createdAt: ts, updatedAt: ts,
-        pinned: false, tags: [],
-      };
-      addNote(note);
+      if (isEditing && id) {
+        updateNote(id, { title: result.data.title, content: result.data.content });
+      } else {
+        const ts = timestamp();
+        const note: Note = {
+          id: newId(), type: 'note',
+          title: result.data.title,
+          content: result.data.content,
+          createdAt: ts, updatedAt: ts,
+          pinned: false, tags: [],
+        };
+        addNote(note);
+      }
       router.back();
       return;
     }
@@ -326,17 +349,27 @@ export default function NuevaNotaScreen() {
         return;
       }
       setChecklistErrors({});
-      const checklistItems: ChecklistItem[] = result.data.items.map((item) => ({
-        id: item.id, text: item.text, checked: false,
-      }));
-      const checklist: ChecklistNote = {
-        id, type: 'checklist',
-        title: result.data.title,
-        items: checklistItems,
-        createdAt: ts, updatedAt: ts,
-        pinned: false, tags: [],
-      };
-      addNote(checklist);
+      if (isEditing && id && initialChecklist) {
+        const originalItems = initialChecklist.items;
+        const updatedItems: ChecklistItem[] = result.data.items.map((draftItem) => {
+          const original = originalItems.find((o) => o.id === draftItem.id);
+          return { id: draftItem.id, text: draftItem.text, checked: original?.checked ?? false };
+        });
+        updateChecklist(id, { title: result.data.title, items: updatedItems });
+      } else {
+        const ts = timestamp();
+        const checklistItems: ChecklistItem[] = result.data.items.map((item) => ({
+          id: item.id, text: item.text, checked: false,
+        }));
+        const checklist: ChecklistNote = {
+          id: newId(), type: 'checklist',
+          title: result.data.title,
+          items: checklistItems,
+          createdAt: ts, updatedAt: ts,
+          pinned: false, tags: [],
+        };
+        addNote(checklist);
+      }
       router.back();
       return;
     }
@@ -350,15 +383,20 @@ export default function NuevaNotaScreen() {
         return;
       }
       setIdeaErrors({});
-      const idea: IdeaNote = {
-        id, type: 'idea',
-        title: result.data.title,
-        content: '',
-        status: raw!.status,
-        createdAt: ts, updatedAt: ts,
-        pinned: false, tags: raw!.tags,
-      };
-      addNote(idea);
+      if (isEditing && id) {
+        updateIdea(id, { title: result.data.title, status: raw!.status, tags: raw!.tags });
+      } else {
+        const ts = timestamp();
+        const idea: IdeaNote = {
+          id: newId(), type: 'idea',
+          title: result.data.title,
+          content: '',
+          status: raw!.status,
+          createdAt: ts, updatedAt: ts,
+          pinned: false, tags: raw!.tags,
+        };
+        addNote(idea);
+      }
       router.back();
     }
   };
@@ -403,9 +441,9 @@ export default function NuevaNotaScreen() {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
-          {noteType === 'note' && <NoteForm ref={noteRef} errors={noteErrors} />}
-          {noteType === 'checklist' && <ChecklistForm ref={checklistRef} errors={checklistErrors} />}
-          {noteType === 'idea' && <IdeaForm ref={ideaRef} errors={ideaErrors} />}
+          {noteType === 'note' && <NoteForm ref={noteRef} errors={noteErrors} initialData={initialNote} />}
+          {noteType === 'checklist' && <ChecklistForm ref={checklistRef} errors={checklistErrors} initialData={initialChecklist} />}
+          {noteType === 'idea' && <IdeaForm ref={ideaRef} errors={ideaErrors} initialData={initialIdea} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </>

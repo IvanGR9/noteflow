@@ -15,7 +15,7 @@ function EmptyState() {
   return (
     <View style={styles.empty}>
       <Ionicons name="checkbox-outline" size={52} color={Colors.dark.textMuted} />
-      <Text style={styles.emptyTitle}>No tienes checklists aún.</Text>
+      <Text style={styles.emptyTitle}>No tienes tareas aún.</Text>
       <Text style={styles.emptySubtitle}>Pulsa + para crear una.</Text>
     </View>
   );
@@ -69,7 +69,7 @@ export default function ChecklistsScreen() {
           icon: 'trash-outline' as const,
           destructive: true,
           onPress: () =>
-            Alert.alert('¿Eliminar checklist?', 'Esta acción no se puede deshacer.', [
+            Alert.alert('¿Eliminar tarea?', 'Esta acción no se puede deshacer.', [
               { text: 'Cancelar', style: 'cancel' },
               {
                 text: 'Eliminar',
@@ -86,7 +86,7 @@ export default function ChecklistsScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + Spacing[4] }]}>
-      <Text style={styles.heading}>Checklists</Text>
+      <Text style={styles.heading}>Tareas</Text>
       <View style={styles.searchRow}>
         <Ionicons name="search" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
         <TextInput

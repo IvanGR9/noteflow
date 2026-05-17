@@ -10,7 +10,9 @@ interface NotesState {
   _hasHydrated: boolean;
   setHasHydrated: (value: boolean) => void;
   addNote: (note: AnyNote) => void;
-  updateNote: (id: string, updates: Partial<AnyNote>) => void;
+  updateNote: (id: string, updates: Partial<Note>) => void;
+  updateChecklist: (id: string, updates: Partial<ChecklistNote>) => void;
+  updateIdea: (id: string, updates: Partial<IdeaNote>) => void;
   deleteNote: (id: string, type: NoteType) => void;
   toggleChecklistItem: (noteId: string, itemId: string) => void;
   addChecklistItem: (noteId: string, item: ChecklistItem) => void;
@@ -48,13 +50,21 @@ export const useNotesStore = create<NotesState>()(
       updateNote: (id, updates) =>
         set((state) => ({
           notes: state.notes.map((n) =>
-            n.id === id ? ({ ...n, ...updates, updatedAt: now() } as Note) : n
+            n.id === id ? { ...n, ...updates, updatedAt: now() } : n
           ),
+        })),
+
+      updateChecklist: (id, updates) =>
+        set((state) => ({
           checklists: state.checklists.map((n) =>
-            n.id === id ? ({ ...n, ...updates, updatedAt: now() } as ChecklistNote) : n
+            n.id === id ? { ...n, ...updates, updatedAt: now() } : n
           ),
+        })),
+
+      updateIdea: (id, updates) =>
+        set((state) => ({
           ideas: state.ideas.map((n) =>
-            n.id === id ? ({ ...n, ...updates, updatedAt: now() } as IdeaNote) : n
+            n.id === id ? { ...n, ...updates, updatedAt: now() } : n
           ),
         })),
 

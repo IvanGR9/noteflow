@@ -93,7 +93,7 @@ export default function ArchivadosScreen() {
     : [];
 
   const renderItem = ({ item }: { item: ArchivedItem }) => {
-    const onPress = () => {};
+    const onPress = () => router.push({ pathname: '/nueva-nota', params: { type: item.type, id: item.id } });
     const onLongPress = () => handleLongPress(item);
 
     let card;

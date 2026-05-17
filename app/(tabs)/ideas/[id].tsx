@@ -44,9 +44,17 @@ export default function IdeaDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + Spacing[4] }]}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)/ideas')} style={styles.backBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
-        </TouchableOpacity>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => router.replace('/(tabs)/ideas')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/nueva-nota', params: { type: 'idea', id: note.id } })}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="create-outline" size={24} color={Colors.dark.accent} />
+          </TouchableOpacity>
+        </View>
         <View style={[styles.badge, { backgroundColor: `${status.color}33` }]}>
           <View style={[styles.badgeDot, { backgroundColor: status.color }]} />
           <Text style={[styles.badgeText, { color: status.color }]}>{status.label}</Text>
@@ -95,6 +103,11 @@ const styles = StyleSheet.create({
   notFoundText: {
     fontSize: Typography.size.md,
     color: Colors.dark.textSecondary,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backBtn: {
     alignSelf: 'flex-start',
