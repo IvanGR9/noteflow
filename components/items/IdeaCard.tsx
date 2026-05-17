@@ -22,7 +22,7 @@ const STATUS_CONFIG: Record<IdeaNote['status'], StatusConfig> = {
   discarded: { label: 'Descartada', color: Colors.dark.textMuted },
 };
 
-const TAG_LIMIT = 4;
+const TAG_LIMIT = 2;
 
 export function IdeaCard({ note, onPress, onLongPress }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;
@@ -41,48 +41,52 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
 
   return (
     <Animated.View style={[{ flex: 1 }, { opacity, transform: [{ translateY }] }]}>
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      delayLongPress={300}
-      style={[styles.card, { backgroundColor: `${status.color}26` }]}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={1}>
-          {note.title}
-        </Text>
-        {note.pinned && (
-          <Ionicons name="pin" size={14} color={Colors.dark.accent} style={styles.pin} />
-        )}
-      </View>
-
-      <View style={[styles.badge, { backgroundColor: `${status.color}33` }]}>
-        <View style={[styles.badgeDot, { backgroundColor: status.color }]} />
-        <Text style={[styles.badgeText, { color: status.color }]}>{status.label}</Text>
-      </View>
-
-      {note.content.length > 0 && (
-        <Text style={styles.content} numberOfLines={2}>
-          {note.content}
-        </Text>
-      )}
-
-      {visibleTags.length > 0 && (
-        <View style={styles.tags}>
-          {visibleTags.map((tag) => (
-            <View key={tag} style={styles.chip}>
-              <Text style={styles.chipText}>#{tag}</Text>
-            </View>
-          ))}
-          {overflowTags > 0 && (
-            <View style={styles.chip}>
-              <Text style={styles.chipText}>+{overflowTags}</Text>
-            </View>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        delayLongPress={300}
+        style={[
+          styles.card,
+          {
+            backgroundColor: `${status.color}40`,
+            borderColor: status.color,
+          },
+        ]}
+      >
+        <View style={styles.iconBadge}>
+          <Ionicons name="bulb" size={28} color="#ffffff" style={{ opacity: 0.25 }} />
+        </View>
+        <View style={styles.top}>
+          <View style={styles.titleRow}>
+            <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
+            {note.pinned && (
+              <Ionicons name="pin" size={11} color="rgba(255,255,255,0.5)" style={styles.pin} />
+            )}
+          </View>
+          {note.content.length > 0 && (
+            <Text style={styles.content} numberOfLines={2}>{note.content}</Text>
           )}
         </View>
-      )}
-    </TouchableOpacity>
+
+        <View style={styles.bottom}>
+          <View style={styles.tagsRow}>
+            {visibleTags.map((tag) => (
+              <View key={tag} style={styles.chip}>
+                <Text style={styles.chipText}>#{tag}</Text>
+              </View>
+            ))}
+            {overflowTags > 0 && (
+              <View style={styles.chip}>
+                <Text style={styles.chipText}>+{overflowTags}</Text>
+              </View>
+            )}
+          </View>
+          <View style={[styles.badge, { backgroundColor: status.color }]}>
+            <Text style={styles.badgeText}>{status.label}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -90,63 +94,74 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    borderRadius: 20,
-    padding: Spacing[3],
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: Spacing[4],
     height: '100%',
-    gap: Spacing[3],
+    justifyContent: 'space-between',
   },
-  header: {
+  top: {
+    gap: Spacing[2],
+  },
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    gap: Spacing[2],
+    gap: Spacing[1],
   },
   title: {
     flex: 1,
-    fontSize: Typography.size.md,
-    fontWeight: Typography.weight.semibold,
-    color: Colors.dark.text,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+    lineHeight: 22,
+    paddingRight: Spacing[8],
   },
   pin: {
-    marginTop: 2,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: Spacing[1],
-    paddingHorizontal: Spacing[2],
-    paddingVertical: 3,
-    borderRadius: Radius.full,
-  },
-  badgeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: Radius.full,
-  },
-  badgeText: {
-    fontSize: Typography.size.xs,
-    fontWeight: Typography.weight.medium,
+    marginTop: 3,
   },
   content: {
-    fontSize: Typography.size.sm,
-    color: Colors.dark.textSecondary,
-    lineHeight: Typography.size.sm * Typography.lineHeight.normal,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 19,
   },
-  tags: {
+  bottom: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: Spacing[2],
+  },
+  tagsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing[1],
+    flex: 1,
   },
   chip: {
-    backgroundColor: Colors.dark.surfaceElevated,
+    backgroundColor: 'rgba(0,0,0,0.3)',
     paddingHorizontal: Spacing[2],
     paddingVertical: 2,
     borderRadius: Radius.full,
   },
   chipText: {
-    fontSize: Typography.size.xs,
-    color: Colors.dark.textSecondary,
-    fontWeight: Typography.weight.medium,
+    fontSize: 11,
+    color: '#ffffff',
+    fontWeight: '500',
+  },
+  badge: {
+    paddingHorizontal: Spacing[3],
+    paddingVertical: Spacing[1],
+    borderRadius: Radius.full,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  iconBadge: {
+    position: 'absolute',
+    top: Spacing[3],
+    right: Spacing[3],
+    zIndex: 1,
   },
 });

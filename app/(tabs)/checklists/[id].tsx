@@ -49,7 +49,7 @@ export default function ChecklistDetailScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + Spacing[4] }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <TouchableOpacity onPress={() => router.replace('/(tabs)/checklists')} style={styles.backBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
         </TouchableOpacity>
         <Text style={styles.title}>{note.title}</Text>

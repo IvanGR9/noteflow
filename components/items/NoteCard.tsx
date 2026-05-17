@@ -46,6 +46,9 @@ export function NoteCard({ note, onPress, onLongPress }: Props) {
         delayLongPress={300}
         style={styles.card}
       >
+        <View style={styles.iconBadge}>
+          <Ionicons name="document-text" size={28} color={Colors.dark.accent} style={{ opacity: 0.25 }} />
+        </View>
         <View style={styles.top}>
           <View style={styles.titleRow}>
             <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
@@ -69,7 +72,9 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: Colors.dark.surfaceElevated,
+    backgroundColor: '#1e1e1e',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 24,
     padding: Spacing[4],
     height: '100%',
@@ -90,6 +95,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.dark.text,
     lineHeight: 22,
+    paddingRight: Spacing[8],
   },
   pin: {
     marginTop: 3,
@@ -103,5 +109,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Colors.dark.textMuted,
     marginTop: Spacing[2],
+  },
+  iconBadge: {
+    position: 'absolute',
+    top: Spacing[3],
+    right: Spacing[3],
+    zIndex: 1,
   },
 });

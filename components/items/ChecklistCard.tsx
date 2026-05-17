@@ -32,6 +32,9 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
   return (
     <Animated.View style={[{ flex: 1 }, { opacity, transform: [{ translateY }] }]}>
     <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} style={styles.card}>
+      <View style={styles.iconBadge}>
+        <Ionicons name="checkbox" size={28} color={Colors.dark.success} style={{ opacity: 0.25 }} />
+      </View>
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={1}>
           {note.title}
@@ -80,8 +83,10 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: Colors.dark.surface,
-    borderRadius: 20,
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.15)',
+    borderRadius: 24,
     padding: Spacing[3],
     height: '100%',
     gap: Spacing[3],
@@ -97,6 +102,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.md,
     fontWeight: Typography.weight.semibold,
     color: Colors.dark.text,
+    paddingRight: Spacing[8],
   },
   pin: {
     marginTop: 2,
@@ -140,5 +146,11 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: Typography.size.xs,
     color: Colors.dark.textMuted,
+  },
+  iconBadge: {
+    position: 'absolute',
+    top: Spacing[3],
+    right: Spacing[3],
+    zIndex: 1,
   },
 });
