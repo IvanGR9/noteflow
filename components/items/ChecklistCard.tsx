@@ -30,7 +30,7 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
   const overflow = total - PREVIEW_LIMIT;
 
   return (
-    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
+    <Animated.View style={[{ flex: 1 }, { opacity, transform: [{ translateY }] }]}>
     <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={1}>
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.surface,
     borderRadius: 20,
     padding: Spacing[3],
-    minHeight: 160,
+    height: '100%',
     gap: Spacing[3],
   },
   header: {

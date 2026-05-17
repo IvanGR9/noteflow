@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNotesStore } from '../../../store/notesStore';
 import { Colors, Typography, Spacing, Radius } from '../../../constants/theme';
 
@@ -14,6 +15,7 @@ function formatDate(dateStr: string): string {
 export default function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const note = useNotesStore((state) => state.notes.find((n) => n.id === id));
 
   if (!note) {
@@ -29,15 +31,11 @@ export default function NoteDetailScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: '',
-          headerStyle: { backgroundColor: Colors.dark.surface },
-          headerTintColor: Colors.dark.text,
-          headerShadowVisible: false,
-        }}
-      />
-      <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <ScrollView style={styles.container} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + Spacing[4] }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
+        </TouchableOpacity>
         {note.pinned && (
           <View style={styles.pinnedBadge}>
             <Ionicons name="pin" size={12} color={Colors.dark.accent} />
@@ -83,10 +81,7 @@ const styles = StyleSheet.create({
     color: Colors.dark.textSecondary,
   },
   backBtn: {
-    paddingHorizontal: Spacing[4],
-    paddingVertical: Spacing[2],
-    backgroundColor: Colors.dark.surface,
-    borderRadius: Radius.md,
+    alignSelf: 'flex-start',
   },
   backBtnText: {
     fontSize: Typography.size.base,

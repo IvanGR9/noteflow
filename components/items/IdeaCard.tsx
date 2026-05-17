@@ -40,7 +40,7 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
   const overflowTags = note.tags.length - TAG_LIMIT;
 
   return (
-    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
+    <Animated.View style={[{ flex: 1 }, { opacity, transform: [{ translateY }] }]}>
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 20,
     padding: Spacing[3],
-    minHeight: 160,
+    height: '100%',
     gap: Spacing[3],
   },
   header: {

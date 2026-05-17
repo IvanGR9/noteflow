@@ -140,7 +140,7 @@ export default function NotasScreen() {
         </TouchableOpacity>
       </View>
       <View style={styles.searchRow}>
-        <Ionicons name="search-outline" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
+        <Ionicons name="search" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar..."
@@ -153,7 +153,6 @@ export default function NotasScreen() {
       <FlashList
         data={filtered}
         keyExtractor={(item: Note) => item.id}
-        estimatedItemSize={100}
         numColumns={2}
         renderItem={({ item }: { item: Note }) => (
           <View style={styles.itemWrapper}>
@@ -164,9 +163,9 @@ export default function NotasScreen() {
             />
           </View>
         )}
-        ItemSeparatorComponent={Separator}
         ListEmptyComponent={EmptyState}
-        estimatedItemSize={180}
+        estimatedItemSize={200}
+        overrideItemLayout={(layout) => { layout.size = 200; }}
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
@@ -210,20 +209,18 @@ const styles = StyleSheet.create({
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.dark.surface,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-    borderRadius: 12,
+    backgroundColor: Colors.dark.surfaceElevated,
+    borderRadius: 50,
     marginHorizontal: Spacing[4],
     marginBottom: Spacing[3],
-    paddingHorizontal: Spacing[3],
+    paddingVertical: Spacing[3],
+    paddingHorizontal: Spacing[4],
   },
   searchIcon: {
     marginRight: Spacing[2],
   },
   searchInput: {
     flex: 1,
-    height: 40,
     fontSize: Typography.size.sm,
     color: Colors.dark.text,
   },
@@ -233,7 +230,9 @@ const styles = StyleSheet.create({
   },
   itemWrapper: {
     flex: 1,
+    height: 200,
     marginHorizontal: Spacing[1],
+    marginBottom: Spacing[2],
   },
   separator: {
     height: Spacing[3],

@@ -2,7 +2,7 @@ import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native
 import { useEffect, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { Note } from '../../types';
-import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
+import { Colors, Spacing } from '../../constants/theme';
 
 interface Props {
   note: Note;
@@ -38,62 +38,70 @@ export function NoteCard({ note, onPress, onLongPress }: Props) {
   }, []);
 
   return (
-    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={1}>
-          {note.title}
-        </Text>
-        {note.pinned && (
-          <Ionicons name="pin" size={14} color={Colors.dark.accent} style={styles.pin} />
-        )}
-      </View>
-
-      {note.content.length > 0 && (
-        <Text style={styles.content} numberOfLines={2}>
-          {note.content}
-        </Text>
-      )}
-
-      <Text style={styles.date}>{formatRelativeTime(note.updatedAt)}</Text>
-    </TouchableOpacity>
+    <Animated.View style={[styles.animated, { opacity, transform: [{ translateY }] }]}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        delayLongPress={300}
+        style={styles.card}
+      >
+        <View style={styles.top}>
+          <View style={styles.titleRow}>
+            <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
+            {note.pinned && (
+              <Ionicons name="pin" size={11} color={Colors.dark.textMuted} style={styles.pin} />
+            )}
+          </View>
+          {note.content.length > 0 && (
+            <Text style={styles.content} numberOfLines={3}>{note.content}</Text>
+          )}
+        </View>
+        <Text style={styles.date}>{formatRelativeTime(note.updatedAt)}</Text>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  animated: {
+    flex: 1,
+  },
   card: {
     flex: 1,
-    backgroundColor: Colors.dark.surface,
-    borderRadius: 20,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.dark.accent,
-    padding: Spacing[3],
-    minHeight: 160,
+    backgroundColor: Colors.dark.surfaceElevated,
+    borderRadius: 24,
+    padding: Spacing[4],
+    height: '100%',
+    justifyContent: 'space-between',
+  },
+  top: {
     gap: Spacing[2],
   },
-  header: {
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    gap: Spacing[2],
+    gap: Spacing[1],
   },
   title: {
     flex: 1,
-    fontSize: Typography.size.md,
-    fontWeight: Typography.weight.semibold,
+    fontSize: 16,
+    fontWeight: '700',
     color: Colors.dark.text,
+    lineHeight: 22,
   },
   pin: {
-    marginTop: 2,
+    marginTop: 3,
   },
   content: {
-    fontSize: Typography.size.sm,
+    fontSize: 13,
     color: Colors.dark.textSecondary,
-    lineHeight: Typography.size.sm * Typography.lineHeight.normal,
+    lineHeight: 19,
   },
   date: {
-    fontSize: Typography.size.xs,
+    fontSize: 11,
     color: Colors.dark.textMuted,
+    marginTop: Spacing[2],
   },
 });
