@@ -1,10 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { useState, useMemo } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNotesStore } from '../../store/notesStore';
 import { NoteCard } from '../../components/items/NoteCard';
+import { ContextMenu } from '../../components/ContextMenu';
 import { Colors, Spacing, Radius, Typography } from '../../constants/theme';
 import type { Note } from '../../types';
 
@@ -25,23 +28,145 @@ function Separator() {
 export default function NotasScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const notes = useNotesStore((state) => state.notes);
+  const allNotes = useNotesStore((s) => s.notes);
+  const archiveNote = useNotesStore((s) => s.archiveNote);
+  const deleteNote = useNotesStore((s) => s.deleteNote);
+  const clearAllNotes = useNotesStore((s) => s.clearAllNotes);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'alpha'>('date-desc');
+  const [menuTarget, setMenuTarget] = useState<Note | null>(null);
+  const [headerMenuVisible, setHeaderMenuVisible] = useState(false);
+
+  const filtered = useMemo(() => {
+    const list = allNotes
+      .filter((n) => !n.archived)
+      .filter((n) => n.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    if (sortBy === 'date-desc') {
+      return [...list].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    }
+    if (sortBy === 'date-asc') {
+      return [...list].sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+    }
+    return [...list].sort((a, b) => a.title.localeCompare(b.title));
+  }, [allNotes, searchQuery, sortBy]);
+
+  const handleLongPress = (item: Note) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setMenuTarget(item);
+  };
+
+  const menuOptions = menuTarget
+    ? [
+        {
+          label: 'Archivar',
+          icon: 'archive-outline' as const,
+          onPress: () => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            archiveNote(menuTarget.id);
+          },
+        },
+        {
+          label: 'Eliminar',
+          icon: 'trash-outline' as const,
+          destructive: true,
+          onPress: () =>
+            Alert.alert('¿Eliminar nota?', 'Esta acción no se puede deshacer.', [
+              { text: 'Cancelar', style: 'cancel' },
+              {
+                text: 'Eliminar',
+                style: 'destructive',
+                onPress: () => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  deleteNote(menuTarget.id, 'note');
+                },
+              },
+            ]),
+        },
+      ]
+    : [];
+
+  const headerMenuOptions = [
+    {
+      label: 'Ordenar: reciente primero',
+      icon: 'time-outline' as const,
+      onPress: () => setSortBy('date-desc'),
+    },
+    {
+      label: 'Ordenar: antiguo primero',
+      icon: 'time-outline' as const,
+      onPress: () => setSortBy('date-asc'),
+    },
+    {
+      label: 'Ordenar alfabéticamente',
+      icon: 'text-outline' as const,
+      onPress: () => setSortBy('alpha'),
+    },
+    {
+      label: 'Ver archivados',
+      icon: 'archive-outline' as const,
+      onPress: () => router.push('/archivados'),
+    },
+    {
+      label: 'Borrar todas las notas',
+      icon: 'trash-outline' as const,
+      destructive: true,
+      onPress: () =>
+        Alert.alert('¿Borrar todas las notas?', 'Esta acción no se puede deshacer.', [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Borrar todo',
+            style: 'destructive',
+            onPress: () => clearAllNotes(),
+          },
+        ]),
+    },
+    {
+      label: 'Ajustes',
+      icon: 'settings-outline' as const,
+      onPress: () => router.push('/ajustes'),
+    },
+  ];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + Spacing[4] }]}>
-      <Text style={styles.heading}>Notas</Text>
+      <View style={styles.headingRow}>
+        <Text style={styles.heading}>Notas</Text>
+        <TouchableOpacity
+          onPress={() => setHeaderMenuVisible(true)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="ellipsis-vertical" size={22} color={Colors.dark.textSecondary} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.searchRow}>
+        <Ionicons name="search-outline" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar..."
+          placeholderTextColor={Colors.dark.textMuted}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          clearButtonMode="while-editing"
+        />
+      </View>
       <FlashList
-        data={notes}
+        data={filtered}
         keyExtractor={(item: Note) => item.id}
         estimatedItemSize={100}
+        numColumns={2}
         renderItem={({ item }: { item: Note }) => (
-          <NoteCard
-            note={item}
-            onPress={() => router.push({ pathname: '/(tabs)/notas/[id]', params: { id: item.id } })}
-          />
+          <View style={styles.itemWrapper}>
+            <NoteCard
+              note={item}
+              onPress={() => router.push({ pathname: '/(tabs)/notas/[id]', params: { id: item.id } })}
+              onLongPress={() => handleLongPress(item)}
+            />
+          </View>
         )}
         ItemSeparatorComponent={Separator}
         ListEmptyComponent={EmptyState}
+        estimatedItemSize={180}
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
@@ -51,6 +176,16 @@ export default function NotasScreen() {
       >
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>
+      <ContextMenu
+        visible={menuTarget !== null}
+        onClose={() => setMenuTarget(null)}
+        options={menuOptions}
+      />
+      <ContextMenu
+        visible={headerMenuVisible}
+        onClose={() => setHeaderMenuVisible(false)}
+        options={headerMenuOptions}
+      />
     </View>
   );
 }
@@ -60,16 +195,45 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.background,
   },
+  headingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing[4],
+    marginBottom: Spacing[3],
+  },
   heading: {
     fontSize: Typography.size['2xl'],
     fontWeight: Typography.weight.bold,
     color: Colors.dark.text,
-    paddingHorizontal: Spacing[4],
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.dark.surface,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+    borderRadius: 12,
+    marginHorizontal: Spacing[4],
     marginBottom: Spacing[3],
+    paddingHorizontal: Spacing[3],
+  },
+  searchIcon: {
+    marginRight: Spacing[2],
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    fontSize: Typography.size.sm,
+    color: Colors.dark.text,
   },
   list: {
     paddingHorizontal: Spacing[4],
     paddingBottom: 100,
+  },
+  itemWrapper: {
+    flex: 1,
+    marginHorizontal: Spacing[1],
   },
   separator: {
     height: Spacing[3],

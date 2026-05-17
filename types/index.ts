@@ -8,6 +8,7 @@ export interface BaseNote {
   updatedAt: string;
   pinned: boolean;
   tags: string[];
+  archived?: boolean;
 }
 
 export interface ChecklistItem {

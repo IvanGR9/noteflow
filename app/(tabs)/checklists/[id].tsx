@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -16,7 +16,6 @@ export default function ChecklistDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const note = useNotesStore((state) => state.checklists.find((n) => n.id === id));
-  const deleteNote = useNotesStore((state) => state.deleteNote);
   const toggleChecklistItem = useNotesStore((state) => state.toggleChecklistItem);
 
   const allCompleted = !!note && note.items.length > 0 && note.items.every((i) => i.checked);
@@ -28,21 +27,6 @@ export default function ChecklistDetailScreen() {
     }
     prevAllCompleted.current = allCompleted;
   }, [allCompleted]);
-
-  const handleDelete = () => {
-    Alert.alert('¿Eliminar?', 'Esta acción no se puede deshacer.', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          deleteNote(id as string, 'checklist');
-          router.back();
-        },
-      },
-    ]);
-  };
 
   if (!note) {
     return (
@@ -67,14 +51,6 @@ export default function ChecklistDetailScreen() {
           headerStyle: { backgroundColor: Colors.dark.surface },
           headerTintColor: Colors.dark.text,
           headerShadowVisible: false,
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={handleDelete}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="trash-outline" size={20} color={Colors.dark.destructive} />
-            </TouchableOpacity>
-          ),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>

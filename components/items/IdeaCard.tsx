@@ -1,4 +1,5 @@
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { useEffect, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { IdeaNote } from '../../types';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
@@ -6,6 +7,7 @@ import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
 interface Props {
   note: IdeaNote;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
 type StatusConfig = {
@@ -22,15 +24,28 @@ const STATUS_CONFIG: Record<IdeaNote['status'], StatusConfig> = {
 
 const TAG_LIMIT = 4;
 
-export function IdeaCard({ note, onPress }: Props) {
+export function IdeaCard({ note, onPress, onLongPress }: Props) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
   const status = STATUS_CONFIG[note.status];
   const visibleTags = note.tags.slice(0, TAG_LIMIT);
   const overflowTags = note.tags.length - TAG_LIMIT;
 
   return (
+    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={300}
       style={[styles.card, { backgroundColor: `${status.color}26` }]}
     >
       <View style={styles.header}>
@@ -68,13 +83,16 @@ export function IdeaCard({ note, onPress }: Props) {
         </View>
       )}
     </TouchableOpacity>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Radius.md,
-    padding: Spacing[4],
+    flex: 1,
+    borderRadius: 20,
+    padding: Spacing[3],
+    minHeight: 160,
     gap: Spacing[3],
   },
   header: {

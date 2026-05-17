@@ -1,4 +1,5 @@
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { useEffect, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { ChecklistNote } from '../../types';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
@@ -6,11 +7,22 @@ import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
 interface Props {
   note: ChecklistNote;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
 const PREVIEW_LIMIT = 3;
 
-export function ChecklistCard({ note, onPress }: Props) {
+export function ChecklistCard({ note, onPress, onLongPress }: Props) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
   const total = note.items.length;
   const completed = note.items.filter((i) => i.checked).length;
   const progress = total > 0 ? completed / total : 0;
@@ -18,7 +30,8 @@ export function ChecklistCard({ note, onPress }: Props) {
   const overflow = total - PREVIEW_LIMIT;
 
   return (
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={styles.card}>
+    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title} numberOfLines={1}>
           {note.title}
@@ -60,14 +73,17 @@ export function ChecklistCard({ note, onPress }: Props) {
         </Text>
       </View>
     </TouchableOpacity>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     backgroundColor: Colors.dark.surface,
-    borderRadius: Radius.md,
-    padding: Spacing[4],
+    borderRadius: 20,
+    padding: Spacing[3],
+    minHeight: 160,
     gap: Spacing[3],
   },
   header: {

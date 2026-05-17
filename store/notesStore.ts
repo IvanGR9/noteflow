@@ -15,6 +15,15 @@ interface NotesState {
   toggleChecklistItem: (noteId: string, itemId: string) => void;
   addChecklistItem: (noteId: string, item: ChecklistItem) => void;
   deleteChecklistItem: (noteId: string, itemId: string) => void;
+  archiveNote: (id: string) => void;
+  archiveChecklist: (id: string) => void;
+  archiveIdea: (id: string) => void;
+  unarchiveNote: (id: string) => void;
+  unarchiveChecklist: (id: string) => void;
+  unarchiveIdea: (id: string) => void;
+  clearAllNotes: () => void;
+  clearAllChecklists: () => void;
+  clearAllIdeas: () => void;
 }
 
 const now = () => new Date().toISOString();
@@ -86,6 +95,36 @@ export const useNotesStore = create<NotesState>()(
               : n
           ),
         })),
+
+      archiveNote: (id) =>
+        set((state) => ({
+          notes: state.notes.map((n) => (n.id === id ? { ...n, archived: true } : n)),
+        })),
+      archiveChecklist: (id) =>
+        set((state) => ({
+          checklists: state.checklists.map((n) => (n.id === id ? { ...n, archived: true } : n)),
+        })),
+      archiveIdea: (id) =>
+        set((state) => ({
+          ideas: state.ideas.map((n) => (n.id === id ? { ...n, archived: true } : n)),
+        })),
+
+      unarchiveNote: (id) =>
+        set((state) => ({
+          notes: state.notes.map((n) => (n.id === id ? { ...n, archived: false } : n)),
+        })),
+      unarchiveChecklist: (id) =>
+        set((state) => ({
+          checklists: state.checklists.map((n) => (n.id === id ? { ...n, archived: false } : n)),
+        })),
+      unarchiveIdea: (id) =>
+        set((state) => ({
+          ideas: state.ideas.map((n) => (n.id === id ? { ...n, archived: false } : n)),
+        })),
+
+      clearAllNotes: () => set({ notes: [] }),
+      clearAllChecklists: () => set({ checklists: [] }),
+      clearAllIdeas: () => set({ ideas: [] }),
     }),
     {
       name: 'noteflow-storage',

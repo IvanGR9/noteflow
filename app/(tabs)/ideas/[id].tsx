@@ -1,7 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { useNotesStore } from '../../../store/notesStore';
 import { Colors, Typography, Spacing, Radius } from '../../../constants/theme';
 import type { IdeaNote } from '../../../types';
@@ -25,22 +24,6 @@ export default function IdeaDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const note = useNotesStore((state) => state.ideas.find((n) => n.id === id));
-  const deleteNote = useNotesStore((state) => state.deleteNote);
-
-  const handleDelete = () => {
-    Alert.alert('¿Eliminar?', 'Esta acción no se puede deshacer.', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          deleteNote(id as string, 'idea');
-          router.back();
-        },
-      },
-    ]);
-  };
 
   if (!note) {
     return (
@@ -63,14 +46,6 @@ export default function IdeaDetailScreen() {
           headerStyle: { backgroundColor: Colors.dark.surface },
           headerTintColor: Colors.dark.text,
           headerShadowVisible: false,
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={handleDelete}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="trash-outline" size={20} color={Colors.dark.destructive} />
-            </TouchableOpacity>
-          ),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
