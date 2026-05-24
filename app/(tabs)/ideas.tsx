@@ -34,9 +34,11 @@ export default function IdeasScreen() {
   const allIdeas = useNotesStore((s) => s.ideas);
   const archiveIdea = useNotesStore((s) => s.archiveIdea);
   const deleteNote = useNotesStore((s) => s.deleteNote);
+  const clearAllIdeas = useNotesStore((s) => s.clearAllIdeas);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'alpha'>('date-desc');
   const [menuTarget, setMenuTarget] = useState<IdeaNote | null>(null);
+  const [headerMenuVisible, setHeaderMenuVisible] = useState(false);
 
   const filtered = useMemo(() => {
     const list = allIdeas
@@ -87,9 +89,59 @@ export default function IdeasScreen() {
       ]
     : [];
 
+  const headerMenuOptions = [
+    {
+      label: 'Ordenar: reciente primero',
+      icon: 'time-outline' as const,
+      onPress: () => setSortBy('date-desc'),
+    },
+    {
+      label: 'Ordenar: antiguo primero',
+      icon: 'time-outline' as const,
+      onPress: () => setSortBy('date-asc'),
+    },
+    {
+      label: 'Ordenar alfabéticamente',
+      icon: 'text-outline' as const,
+      onPress: () => setSortBy('alpha'),
+    },
+    {
+      label: 'Ver archivados',
+      icon: 'archive-outline' as const,
+      onPress: () => router.push('/archivados'),
+    },
+    {
+      label: 'Borrar todas las ideas',
+      icon: 'trash-outline' as const,
+      destructive: true,
+      onPress: () =>
+        Alert.alert('¿Borrar todas las ideas?', 'Esta acción no se puede deshacer.', [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Borrar todo',
+            style: 'destructive',
+            onPress: () => clearAllIdeas(),
+          },
+        ]),
+    },
+    {
+      label: 'Ajustes',
+      icon: 'settings-outline' as const,
+      onPress: () => router.push('/ajustes'),
+    },
+  ];
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + Spacing[4], backgroundColor: colors.background }]}>
-      <Text style={[styles.heading, { color: colors.text }]}>Ideas</Text>
+      <View style={styles.headingRow}>
+        <Text style={[styles.heading, { color: colors.text }]}>Ideas</Text>
+        <TouchableOpacity
+          onPress={() => setHeaderMenuVisible(true)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="ellipsis-vertical" size={22} color={colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
       <View style={[styles.searchRow, { backgroundColor: colors.surfaceElevated }]}>
         <Ionicons name="search" size={18} color={colors.textMuted} style={styles.searchIcon} />
         <TextInput
@@ -131,6 +183,11 @@ export default function IdeasScreen() {
         onClose={() => setMenuTarget(null)}
         options={menuOptions}
       />
+      <ContextMenu
+        visible={headerMenuVisible}
+        onClose={() => setHeaderMenuVisible(false)}
+        options={headerMenuOptions}
+      />
     </View>
   );
 }
@@ -140,12 +197,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.background,
   },
+  headingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing[4],
+    marginBottom: Spacing[3],
+  },
   heading: {
     fontSize: Typography.size['2xl'],
     fontWeight: Typography.weight.bold,
     color: Colors.dark.text,
-    paddingHorizontal: Spacing[4],
-    marginBottom: Spacing[3],
   },
   searchRow: {
     flexDirection: 'row',

@@ -1,8 +1,9 @@
-import { View, Text, Switch, StyleSheet } from 'react-native';
+import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNotesStore } from '../store/notesStore';
 import { useTheme } from '../hooks/useTheme';
+import { seedTestData } from '../lib/seedData';
 import { Colors, Typography, Spacing } from '../constants/theme';
 
 export default function AjustesScreen() {
@@ -31,6 +32,18 @@ export default function AjustesScreen() {
             trackColor={{ false: colors.border, true: `${Colors.dark.accent}66` }}
           />
         </View>
+
+        {__DEV__ && (
+          <TouchableOpacity
+            style={[styles.devButton, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
+            onPress={seedTestData}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.devButtonText, { color: colors.textSecondary }]}>
+              Generar datos de prueba
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </>
   );
@@ -52,6 +65,18 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: Typography.size.base,
+    fontWeight: Typography.weight.medium,
+  },
+  devButton: {
+    marginTop: Spacing[3],
+    paddingHorizontal: Spacing[4],
+    paddingVertical: Spacing[3],
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  devButtonText: {
+    fontSize: Typography.size.sm,
     fontWeight: Typography.weight.medium,
   },
 });
