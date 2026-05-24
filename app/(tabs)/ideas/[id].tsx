@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +28,14 @@ export default function IdeaDetailScreen() {
   const insets = useSafeAreaInsets();
   const note = useNotesStore((state) => state.ideas.find((n) => n.id === id));
 
+  useEffect(() => {
+    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
+      router.navigate('/(tabs)/ideas');
+      return true;
+    });
+    return () => handler.remove();
+  }, []);
+
   if (!note) {
     return (
       <View style={styles.notFound}>
@@ -45,7 +54,7 @@ export default function IdeaDetailScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + Spacing[4] }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.replace('/(tabs)/ideas')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <TouchableOpacity onPress={() => router.navigate('/(tabs)/ideas')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
           </TouchableOpacity>
           <TouchableOpacity

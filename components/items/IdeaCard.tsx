@@ -1,5 +1,5 @@
 import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { IdeaNote } from '../../types';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
@@ -25,27 +25,21 @@ const STATUS_CONFIG: Record<IdeaNote['status'], StatusConfig> = {
 const TAG_LIMIT = 2;
 
 export function IdeaCard({ note, onPress, onLongPress }: Props) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
-    ]).start();
-  }, []);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const status = STATUS_CONFIG[note.status];
   const visibleTags = note.tags.slice(0, TAG_LIMIT);
   const overflowTags = note.tags.length - TAG_LIMIT;
 
   return (
-    <Animated.View style={[{ flex: 1 }, { opacity, transform: [{ translateY }] }]}>
+    <Animated.View style={[{ flex: 1 }, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}
         onLongPress={onLongPress}
         delayLongPress={300}
+        onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50 }).start()}
+        onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()}
         style={[
           styles.card,
           {
@@ -99,6 +93,11 @@ const styles = StyleSheet.create({
     padding: Spacing[4],
     height: '100%',
     justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   top: {
     gap: Spacing[2],

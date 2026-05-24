@@ -1,5 +1,5 @@
 import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { ChecklistNote } from '../../types';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
@@ -13,15 +13,7 @@ interface Props {
 const PREVIEW_LIMIT = 3;
 
 export function ChecklistCard({ note, onPress, onLongPress }: Props) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
-    ]).start();
-  }, []);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const total = note.items.length;
   const completed = note.items.filter((i) => i.checked).length;
@@ -30,8 +22,8 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
   const overflow = total - PREVIEW_LIMIT;
 
   return (
-    <Animated.View style={[{ flex: 1 }, { opacity, transform: [{ translateY }] }]}>
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} style={styles.card}>
+    <Animated.View style={[{ flex: 1 }, { transform: [{ scale: scaleAnim }] }]}>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50 }).start()} onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()} style={styles.card}>
       <View style={styles.iconBadge}>
         <Ionicons name="checkbox" size={28} color={Colors.dark.success} style={{ opacity: 0.25 }} />
       </View>
@@ -90,6 +82,11 @@ const styles = StyleSheet.create({
     padding: Spacing[3],
     height: '100%',
     gap: Spacing[3],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   header: {
     flexDirection: 'row',

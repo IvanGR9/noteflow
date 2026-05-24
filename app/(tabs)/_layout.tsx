@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
+import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography } from '../../constants/theme';
+import { Colors } from '../../constants/theme';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -15,17 +16,35 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.border,
           borderTopWidth: 1,
+          borderTopColor: colors.border,
           elevation: 0,
           shadowOpacity: 0,
-          height: 60,
+          height: 70,
           paddingBottom: 8,
-          paddingTop: 4,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontSize: Typography.size.xs,
-          fontWeight: Typography.weight.medium,
+          fontSize: 12,
+          fontWeight: '600',
+        },
+        tabBarButton: ({ children, onPress, onLongPress, style, accessibilityState }) => {
+          const selected = accessibilityState?.selected;
+          return (
+            <Pressable
+              onPress={onPress}
+              onLongPress={onLongPress}
+              style={[
+                style,
+                selected && {
+                  backgroundColor: `${colors.accent}26`,
+                  borderRadius: 16,
+                },
+              ]}
+            >
+              {children}
+            </Pressable>
+          );
         },
       }}
     >
@@ -33,8 +52,8 @@ export default function TabsLayout() {
         name="notas"
         options={{
           title: 'Notas',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name={'document-text' as IoniconName} size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name={'document-text' as IoniconName} size={26} color={color} />
           ),
         }}
       />
@@ -42,8 +61,8 @@ export default function TabsLayout() {
         name="checklists"
         options={{
           title: 'Tareas',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name={'checkbox' as IoniconName} size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name={'checkbox' as IoniconName} size={26} color={color} />
           ),
         }}
       />
@@ -51,8 +70,8 @@ export default function TabsLayout() {
         name="ideas"
         options={{
           title: 'Ideas',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name={'bulb' as IoniconName} size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name={'bulb' as IoniconName} size={26} color={color} />
           ),
         }}
       />

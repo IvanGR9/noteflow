@@ -1,5 +1,5 @@
 import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { Note } from '../../types';
 import { Colors, Spacing } from '../../constants/theme';
@@ -27,23 +27,17 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 export function NoteCard({ note, onPress, onLongPress }: Props) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
-    ]).start();
-  }, []);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   return (
-    <Animated.View style={[styles.animated, { opacity, transform: [{ translateY }] }]}>
+    <Animated.View style={[styles.animated, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}
         onLongPress={onLongPress}
         delayLongPress={300}
+        onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50 }).start()}
+        onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()}
         style={styles.card}
       >
         <View style={styles.iconBadge}>
@@ -79,6 +73,11 @@ const styles = StyleSheet.create({
     padding: Spacing[4],
     height: '100%',
     justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   top: {
     gap: Spacing[2],
