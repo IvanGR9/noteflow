@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { ChecklistNote } from '../../types';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 interface Props {
   note: ChecklistNote;
@@ -13,6 +14,7 @@ interface Props {
 const PREVIEW_LIMIT = 3;
 
 export function ChecklistCard({ note, onPress, onLongPress }: Props) {
+  const colors = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const total = note.items.length;
@@ -23,16 +25,16 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
 
   return (
     <Animated.View style={[{ flex: 1 }, { transform: [{ scale: scaleAnim }] }]}>
-    <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50 }).start()} onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()} style={styles.card}>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress} onLongPress={onLongPress} delayLongPress={300} onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50 }).start()} onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.iconBadge}>
-        <Ionicons name="checkbox" size={28} color={Colors.dark.success} style={{ opacity: 0.25 }} />
+        <Ionicons name="checkbox" size={28} color={colors.success} style={{ opacity: 0.25 }} />
       </View>
       <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
           {note.title}
         </Text>
         {note.pinned && (
-          <Ionicons name="pin" size={14} color={Colors.dark.accent} style={styles.pin} />
+          <Ionicons name="pin" size={14} color={colors.accent} style={styles.pin} />
         )}
       </View>
 
@@ -43,10 +45,10 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
               <Ionicons
                 name={item.checked ? 'checkbox' : 'square-outline'}
                 size={16}
-                color={item.checked ? Colors.dark.accent : Colors.dark.textMuted}
+                color={item.checked ? colors.accent : colors.textMuted}
               />
               <Text
-                style={[styles.itemText, item.checked && styles.itemChecked]}
+                style={[styles.itemText, { color: colors.text }, item.checked && { color: colors.textMuted, textDecorationLine: 'line-through' }]}
                 numberOfLines={1}
               >
                 {item.text}
@@ -54,16 +56,16 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
             </View>
           ))}
           {overflow > 0 && (
-            <Text style={styles.overflow}>+{overflow} más</Text>
+            <Text style={[styles.overflow, { color: colors.textMuted }]}>+{overflow} más</Text>
           )}
         </View>
       )}
 
       <View style={styles.footer}>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%` }]} />
+        <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
+          <View style={[styles.progressFill, { width: `${Math.round(progress * 100)}%`, backgroundColor: colors.accent }]} />
         </View>
-        <Text style={styles.progressLabel}>
+        <Text style={[styles.progressLabel, { color: colors.textMuted }]}>
           {completed}/{total} completadas
         </Text>
       </View>

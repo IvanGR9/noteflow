@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { Note } from '../../types';
 import { Colors, Spacing } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 interface Props {
   note: Note;
@@ -27,6 +28,7 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 export function NoteCard({ note, onPress, onLongPress }: Props) {
+  const colors = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   return (
@@ -38,23 +40,23 @@ export function NoteCard({ note, onPress, onLongPress }: Props) {
         delayLongPress={300}
         onPressIn={() => Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 50 }).start()}
         onPressOut={() => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()}
-        style={styles.card}
+        style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
       >
         <View style={styles.iconBadge}>
-          <Ionicons name="document-text" size={28} color={Colors.dark.accent} style={{ opacity: 0.25 }} />
+          <Ionicons name="document-text" size={28} color={colors.accent} style={{ opacity: 0.25 }} />
         </View>
         <View style={styles.top}>
           <View style={styles.titleRow}>
-            <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
+            <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{note.title}</Text>
             {note.pinned && (
-              <Ionicons name="pin" size={11} color={Colors.dark.textMuted} style={styles.pin} />
+              <Ionicons name="pin" size={11} color={colors.textMuted} style={styles.pin} />
             )}
           </View>
           {note.content.length > 0 && (
-            <Text style={styles.content} numberOfLines={3}>{note.content}</Text>
+            <Text style={[styles.content, { color: colors.textSecondary }]} numberOfLines={3}>{note.content}</Text>
           )}
         </View>
-        <Text style={styles.date}>{formatRelativeTime(note.updatedAt)}</Text>
+        <Text style={[styles.date, { color: colors.textMuted }]}>{formatRelativeTime(note.updatedAt)}</Text>
       </TouchableOpacity>
     </Animated.View>
   );

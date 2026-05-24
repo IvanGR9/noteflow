@@ -2,12 +2,14 @@ import { Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/theme';
+import { useNotesStore } from '../../store/notesStore';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
-const colors = Colors.dark;
-
 export default function TabsLayout() {
+  const isDarkMode = useNotesStore((s) => s.isDarkMode);
+  const colors = isDarkMode ? Colors.dark : Colors.light;
+
   return (
     <Tabs
       screenOptions={{

@@ -1,22 +1,36 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Switch, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNotesStore } from '../store/notesStore';
+import { useTheme } from '../hooks/useTheme';
 import { Colors, Typography, Spacing } from '../constants/theme';
 
 export default function AjustesScreen() {
+  const colors = useTheme();
+  const insets = useSafeAreaInsets();
+  const isDarkMode = useNotesStore((s) => s.isDarkMode);
+  const toggleDarkMode = useNotesStore((s) => s.toggleDarkMode);
+
   return (
     <>
       <Stack.Screen
         options={{
           title: 'Ajustes',
-          headerStyle: { backgroundColor: Colors.dark.surface },
-          headerTintColor: Colors.dark.text,
+          headerStyle: { backgroundColor: colors.surface },
+          headerTintColor: colors.text,
           headerShadowVisible: false,
         }}
       />
-      <View style={styles.container}>
-        <Ionicons name="settings-outline" size={64} color={Colors.dark.textMuted} />
-        <Text style={styles.label}>Próximamente más opciones</Text>
+      <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + Spacing[4] }]}>
+        <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.rowLabel, { color: colors.text }]}>Modo oscuro</Text>
+          <Switch
+            value={isDarkMode}
+            onValueChange={toggleDarkMode}
+            thumbColor={Colors.dark.accent}
+            trackColor={{ false: colors.border, true: `${Colors.dark.accent}66` }}
+          />
+        </View>
       </View>
     </>
   );
@@ -25,14 +39,19 @@ export default function AjustesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[4],
-    padding: Spacing[6],
+    padding: Spacing[4],
   },
-  label: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing[4],
+    paddingVertical: Spacing[4],
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  rowLabel: {
     fontSize: Typography.size.base,
-    color: Colors.dark.textSecondary,
+    fontWeight: Typography.weight.medium,
   },
 });

@@ -9,14 +9,16 @@ import { useNotesStore } from '../../store/notesStore';
 import { NoteCard } from '../../components/items/NoteCard';
 import { ContextMenu } from '../../components/ContextMenu';
 import { Colors, Spacing, Radius, Typography } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import type { Note } from '../../types';
 
 function EmptyState() {
+  const colors = useTheme();
   return (
     <View style={styles.empty}>
-      <Ionicons name="document-text-outline" size={52} color={Colors.dark.textMuted} />
-      <Text style={styles.emptyTitle}>No tienes notas aún.</Text>
-      <Text style={styles.emptySubtitle}>Pulsa + para crear una.</Text>
+      <Ionicons name="document-text-outline" size={52} color={colors.textMuted} />
+      <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No tienes notas aún.</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Pulsa + para crear una.</Text>
     </View>
   );
 }
@@ -26,6 +28,7 @@ function Separator() {
 }
 
 export default function NotasScreen() {
+  const colors = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const allNotes = useNotesStore((s) => s.notes);
@@ -129,22 +132,22 @@ export default function NotasScreen() {
   ];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + Spacing[4] }]}>
+    <View style={[styles.container, { paddingTop: insets.top + Spacing[4], backgroundColor: colors.background }]}>
       <View style={styles.headingRow}>
-        <Text style={styles.heading}>Notas</Text>
+        <Text style={[styles.heading, { color: colors.text }]}>Notas</Text>
         <TouchableOpacity
           onPress={() => setHeaderMenuVisible(true)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="ellipsis-vertical" size={22} color={Colors.dark.textSecondary} />
+          <Ionicons name="ellipsis-vertical" size={22} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
-      <View style={styles.searchRow}>
-        <Ionicons name="search" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
+      <View style={[styles.searchRow, { backgroundColor: colors.surfaceElevated }]}>
+        <Ionicons name="search" size={18} color={colors.textMuted} style={styles.searchIcon} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.text }]}
           placeholder="Buscar..."
-          placeholderTextColor={Colors.dark.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
           clearButtonMode="while-editing"
@@ -169,7 +172,7 @@ export default function NotasScreen() {
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.accent, shadowColor: colors.accent }]}
         onPress={() => router.push({ pathname: '/nueva-nota', params: { type: 'note' } })}
         activeOpacity={0.85}
       >

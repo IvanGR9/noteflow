@@ -9,14 +9,16 @@ import { useNotesStore } from '../../store/notesStore';
 import { IdeaCard } from '../../components/items/IdeaCard';
 import { ContextMenu } from '../../components/ContextMenu';
 import { Colors, Spacing, Radius, Typography } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import type { IdeaNote } from '../../types';
 
 function EmptyState() {
+  const colors = useTheme();
   return (
     <View style={styles.empty}>
-      <Ionicons name="bulb-outline" size={52} color={Colors.dark.textMuted} />
-      <Text style={styles.emptyTitle}>No tienes ideas aún.</Text>
-      <Text style={styles.emptySubtitle}>Pulsa + para capturar una.</Text>
+      <Ionicons name="bulb-outline" size={52} color={colors.textMuted} />
+      <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No tienes ideas aún.</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Pulsa + para capturar una.</Text>
     </View>
   );
 }
@@ -26,6 +28,7 @@ function Separator() {
 }
 
 export default function IdeasScreen() {
+  const colors = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const allIdeas = useNotesStore((s) => s.ideas);
@@ -85,14 +88,14 @@ export default function IdeasScreen() {
     : [];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + Spacing[4] }]}>
-      <Text style={styles.heading}>Ideas</Text>
-      <View style={styles.searchRow}>
-        <Ionicons name="search" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
+    <View style={[styles.container, { paddingTop: insets.top + Spacing[4], backgroundColor: colors.background }]}>
+      <Text style={[styles.heading, { color: colors.text }]}>Ideas</Text>
+      <View style={[styles.searchRow, { backgroundColor: colors.surfaceElevated }]}>
+        <Ionicons name="search" size={18} color={colors.textMuted} style={styles.searchIcon} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.text }]}
           placeholder="Buscar..."
-          placeholderTextColor={Colors.dark.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
           clearButtonMode="while-editing"
@@ -117,7 +120,7 @@ export default function IdeasScreen() {
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.accent, shadowColor: colors.accent }]}
         onPress={() => router.push({ pathname: '/nueva-nota', params: { type: 'idea' } })}
         activeOpacity={0.85}
       >

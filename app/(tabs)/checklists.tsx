@@ -9,14 +9,16 @@ import { useNotesStore } from '../../store/notesStore';
 import { ChecklistCard } from '../../components/items/ChecklistCard';
 import { ContextMenu } from '../../components/ContextMenu';
 import { Colors, Spacing, Radius, Typography } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import type { ChecklistNote } from '../../types';
 
 function EmptyState() {
+  const colors = useTheme();
   return (
     <View style={styles.empty}>
-      <Ionicons name="checkbox-outline" size={52} color={Colors.dark.textMuted} />
-      <Text style={styles.emptyTitle}>No tienes tareas aún.</Text>
-      <Text style={styles.emptySubtitle}>Pulsa + para crear una.</Text>
+      <Ionicons name="checkbox-outline" size={52} color={colors.textMuted} />
+      <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>No tienes tareas aún.</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>Pulsa + para crear una.</Text>
     </View>
   );
 }
@@ -26,6 +28,7 @@ function Separator() {
 }
 
 export default function ChecklistsScreen() {
+  const colors = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const allChecklists = useNotesStore((s) => s.checklists);
@@ -85,14 +88,14 @@ export default function ChecklistsScreen() {
     : [];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + Spacing[4] }]}>
-      <Text style={styles.heading}>Tareas</Text>
-      <View style={styles.searchRow}>
-        <Ionicons name="search" size={18} color={Colors.dark.textMuted} style={styles.searchIcon} />
+    <View style={[styles.container, { paddingTop: insets.top + Spacing[4], backgroundColor: colors.background }]}>
+      <Text style={[styles.heading, { color: colors.text }]}>Tareas</Text>
+      <View style={[styles.searchRow, { backgroundColor: colors.surfaceElevated }]}>
+        <Ionicons name="search" size={18} color={colors.textMuted} style={styles.searchIcon} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.text }]}
           placeholder="Buscar..."
-          placeholderTextColor={Colors.dark.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
           clearButtonMode="while-editing"
@@ -117,7 +120,7 @@ export default function ChecklistsScreen() {
         contentContainerStyle={styles.list}
       />
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.accent, shadowColor: colors.accent }]}
         onPress={() => router.push({ pathname: '/nueva-nota', params: { type: 'checklist' } })}
         activeOpacity={0.85}
       >

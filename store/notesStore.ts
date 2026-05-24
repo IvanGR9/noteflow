@@ -26,6 +26,8 @@ interface NotesState {
   clearAllNotes: () => void;
   clearAllChecklists: () => void;
   clearAllIdeas: () => void;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
 const now = () => new Date().toISOString();
@@ -135,6 +137,9 @@ export const useNotesStore = create<NotesState>()(
       clearAllNotes: () => set({ notes: [] }),
       clearAllChecklists: () => set({ checklists: [] }),
       clearAllIdeas: () => set({ ideas: [] }),
+
+      isDarkMode: true,
+      toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
     }),
     {
       name: 'noteflow-storage',
@@ -143,7 +148,7 @@ export const useNotesStore = create<NotesState>()(
         state?.setHasHydrated(true);
       },
       // _hasHydrated es estado de runtime, no se persiste
-      partialize: ({ notes, checklists, ideas }) => ({ notes, checklists, ideas }),
+      partialize: ({ notes, checklists, ideas, isDarkMode }) => ({ notes, checklists, ideas, isDarkMode }),
     }
   )
 );

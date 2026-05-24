@@ -2,7 +2,8 @@ import { Animated, TouchableOpacity, View, Text, StyleSheet } from 'react-native
 import { useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import type { IdeaNote } from '../../types';
-import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
+import { Typography, Spacing, Radius } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 interface Props {
   note: IdeaNote;
@@ -15,17 +16,18 @@ type StatusConfig = {
   color: string;
 };
 
-const STATUS_CONFIG: Record<IdeaNote['status'], StatusConfig> = {
-  raw: { label: 'En bruto', color: '#6366f1' },
-  developing: { label: 'Desarrollando', color: Colors.dark.accent },
-  ready: { label: 'Lista', color: Colors.dark.success },
-  discarded: { label: 'Descartada', color: Colors.dark.textMuted },
-};
-
 const TAG_LIMIT = 2;
 
 export function IdeaCard({ note, onPress, onLongPress }: Props) {
+  const colors = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const STATUS_CONFIG: Record<IdeaNote['status'], StatusConfig> = {
+    raw: { label: 'En bruto', color: '#6366f1' },
+    developing: { label: 'Desarrollando', color: colors.accent },
+    ready: { label: 'Lista', color: colors.success },
+    discarded: { label: 'Descartada', color: colors.textMuted },
+  };
 
   const status = STATUS_CONFIG[note.status];
   const visibleTags = note.tags.slice(0, TAG_LIMIT);
@@ -53,13 +55,13 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
         </View>
         <View style={styles.top}>
           <View style={styles.titleRow}>
-            <Text style={styles.title} numberOfLines={2}>{note.title}</Text>
+            <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{note.title}</Text>
             {note.pinned && (
               <Ionicons name="pin" size={11} color="rgba(255,255,255,0.5)" style={styles.pin} />
             )}
           </View>
           {note.content.length > 0 && (
-            <Text style={styles.content} numberOfLines={2}>{note.content}</Text>
+            <Text style={[styles.content, { color: colors.textSecondary }]} numberOfLines={2}>{note.content}</Text>
           )}
         </View>
 
@@ -67,12 +69,12 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
           <View style={styles.tagsRow}>
             {visibleTags.map((tag) => (
               <View key={tag} style={styles.chip}>
-                <Text style={styles.chipText}>#{tag}</Text>
+                <Text style={[styles.chipText, { color: colors.text }]}>#{tag}</Text>
               </View>
             ))}
             {overflowTags > 0 && (
               <View style={styles.chip}>
-                <Text style={styles.chipText}>+{overflowTags}</Text>
+                <Text style={[styles.chipText, { color: colors.text }]}>+{overflowTags}</Text>
               </View>
             )}
           </View>
