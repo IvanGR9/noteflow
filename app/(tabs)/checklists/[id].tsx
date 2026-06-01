@@ -20,7 +20,7 @@ export default function ChecklistDetailScreen() {
   const note = useNotesStore((state) => state.checklists.find((n) => n.id === id));
   const toggleChecklistItem = useNotesStore((state) => state.toggleChecklistItem);
 
-  const allCompleted = !!note && note.items.length > 0 && note.items.every((i) => i.checked);
+  const allCompleted = !!note && (note.items ?? []).length > 0 && (note.items ?? []).every((i) => i.checked);
   const prevAllCompleted = useRef(false);
 
   useEffect(() => {
@@ -49,8 +49,9 @@ export default function ChecklistDetailScreen() {
     );
   }
 
-  const completed = note.items.filter((i) => i.checked).length;
-  const total = note.items.length;
+  const items = note.items ?? [];
+  const completed = items.filter((i) => i.checked).length;
+  const total = items.length;
   const progress = total > 0 ? completed / total : 0;
 
   return (
@@ -68,7 +69,7 @@ export default function ChecklistDetailScreen() {
             <Ionicons name="create-outline" size={24} color={Colors.dark.accent} />
           </TouchableOpacity>
         </View>
-        <Text style={styles.title}>{note.title}</Text>
+        <Text style={styles.title}>{note.title ?? ''}</Text>
         <Text style={styles.date}>{formatDate(note.updatedAt)}</Text>
 
         <View style={styles.progressSection}>
@@ -79,7 +80,7 @@ export default function ChecklistDetailScreen() {
         </View>
 
         <View style={styles.items}>
-          {note.items.map((item) => (
+          {items.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.itemRow}
@@ -92,7 +93,7 @@ export default function ChecklistDetailScreen() {
                 color={item.checked ? Colors.dark.accent : Colors.dark.textMuted}
               />
               <Text style={[styles.itemText, item.checked && styles.itemChecked]}>
-                {item.text}
+                {item.text ?? ''}
               </Text>
             </TouchableOpacity>
           ))}

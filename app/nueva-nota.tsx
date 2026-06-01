@@ -30,7 +30,6 @@ function resolveType(raw: string | string[] | undefined): NoteType {
   return 'note';
 }
 
-const timestamp = () => new Date().toISOString();
 const newId = () => Date.now().toString();
 
 // ─── Schemas Zod ─────────────────────────────────────────────────────────────
@@ -338,15 +337,7 @@ export default function NuevaNotaScreen() {
       if (isEditing && id) {
         updateNote(id, { title: result.data.title, content: result.data.content });
       } else {
-        const ts = timestamp();
-        const note: Note = {
-          id: newId(), type: 'note',
-          title: result.data.title,
-          content: result.data.content,
-          createdAt: ts, updatedAt: ts,
-          pinned: false, tags: [],
-        };
-        addNote(note);
+        addNote({ title: result.data.title, type: 'note', content: result.data.content });
       }
       router.back();
       return;
@@ -368,18 +359,7 @@ export default function NuevaNotaScreen() {
         });
         updateChecklist(id, { title: result.data.title, items: updatedItems });
       } else {
-        const ts = timestamp();
-        const checklistItems: ChecklistItem[] = result.data.items.map((item) => ({
-          id: item.id, text: item.text, checked: false,
-        }));
-        const checklist: ChecklistNote = {
-          id: newId(), type: 'checklist',
-          title: result.data.title,
-          items: checklistItems,
-          createdAt: ts, updatedAt: ts,
-          pinned: false, tags: [],
-        };
-        addNote(checklist);
+        addNote({ title: result.data.title, type: 'checklist' });
       }
       router.back();
       return;
@@ -397,16 +377,7 @@ export default function NuevaNotaScreen() {
       if (isEditing && id) {
         updateIdea(id, { title: result.data.title, content: raw!.content, status: raw!.status, tags: raw!.tags });
       } else {
-        const ts = timestamp();
-        const idea: IdeaNote = {
-          id: newId(), type: 'idea',
-          title: result.data.title,
-          content: raw!.content,
-          status: raw!.status,
-          createdAt: ts, updatedAt: ts,
-          pinned: false, tags: raw!.tags,
-        };
-        addNote(idea);
+        addNote({ title: result.data.title, type: 'idea', content: raw!.content, color: raw!.selectedColor });
       }
       router.back();
     }

@@ -52,7 +52,7 @@ export function NoteCard({ note, onPress, onLongPress }: Props) {
               <Ionicons name="pin" size={11} color={colors.textMuted} style={styles.pin} />
             )}
           </View>
-          {note.content.length > 0 && (
+          {(note.content ?? '').length > 0 && (
             <Text style={[styles.content, { color: colors.textSecondary }]} numberOfLines={3}>{note.content}</Text>
           )}
         </View>

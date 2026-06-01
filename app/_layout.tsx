@@ -8,7 +8,7 @@ import { Colors } from '../constants/theme';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const hasHydrated = useNotesStore((state) => state._hasHydrated);
+  const fetchNotes = useNotesStore((state) => state.fetchNotes);
   const isDarkMode = useNotesStore((state) => state.isDarkMode);
 
   const paperTheme = isDarkMode
@@ -16,10 +16,8 @@ export default function RootLayout() {
     : { ...MD3LightTheme, colors: { ...MD3LightTheme.colors, primary: '#f97316', background: '#fafafa', surface: '#ffffff' } };
 
   useEffect(() => {
-    if (hasHydrated) {
-      SplashScreen.hideAsync();
-    }
-  }, [hasHydrated]);
+    fetchNotes().finally(() => SplashScreen.hideAsync());
+  }, []);
 
   const bg = isDarkMode ? Colors.dark.background : Colors.light.background;
   const surface = isDarkMode ? Colors.dark.surface : Colors.light.surface;

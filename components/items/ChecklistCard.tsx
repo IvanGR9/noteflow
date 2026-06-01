@@ -17,10 +17,11 @@ export function ChecklistCard({ note, onPress, onLongPress }: Props) {
   const colors = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const total = note.items.length;
-  const completed = note.items.filter((i) => i.checked).length;
+  const items = note.items ?? [];
+  const total = items.length;
+  const completed = items.filter((i) => i.checked).length;
   const progress = total > 0 ? completed / total : 0;
-  const previewItems = note.items.slice(0, PREVIEW_LIMIT);
+  const previewItems = items.slice(0, PREVIEW_LIMIT);
   const overflow = total - PREVIEW_LIMIT;
 
   return (

@@ -47,7 +47,7 @@ export default function IdeaDetailScreen() {
     );
   }
 
-  const status = STATUS_CONFIG[note.status];
+  const status = STATUS_CONFIG[note.status] ?? STATUS_CONFIG.raw;
 
   return (
     <>
@@ -69,12 +69,12 @@ export default function IdeaDetailScreen() {
           <Text style={[styles.badgeText, { color: status.color }]}>{status.label}</Text>
         </View>
 
-        <Text style={styles.title}>{note.title}</Text>
+        <Text style={styles.title}>{note.title ?? ''}</Text>
         <Text style={styles.date}>{formatDate(note.updatedAt)}</Text>
 
-        {note.tags.length > 0 && (
+        {(note.tags ?? []).length > 0 && (
           <View style={styles.tagsRow}>
-            {note.tags.map((tag) => (
+            {(note.tags ?? []).map((tag) => (
               <View key={tag} style={styles.tag}>
                 <Text style={styles.tagText}>#{tag}</Text>
               </View>
@@ -82,10 +82,10 @@ export default function IdeaDetailScreen() {
           </View>
         )}
 
-        {note.content.length > 0 && (
+        {(note.content ?? '').length > 0 && (
           <>
             <View style={styles.divider} />
-            <Text style={styles.noteContent}>{note.content}</Text>
+            <Text style={styles.noteContent}>{note.content ?? ''}</Text>
           </>
         )}
       </ScrollView>

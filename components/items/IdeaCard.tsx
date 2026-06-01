@@ -29,9 +29,10 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
     discarded: { label: 'Descartada', color: colors.textMuted },
   };
 
-  const status = STATUS_CONFIG[note.status];
-  const visibleTags = note.tags.slice(0, TAG_LIMIT);
-  const overflowTags = note.tags.length - TAG_LIMIT;
+  const status = STATUS_CONFIG[note.status] ?? STATUS_CONFIG.raw;
+  const tags = note.tags ?? [];
+  const visibleTags = tags.slice(0, TAG_LIMIT);
+  const overflowTags = tags.length - TAG_LIMIT;
 
   return (
     <Animated.View style={[{ flex: 1 }, { transform: [{ scale: scaleAnim }] }]}>
@@ -60,7 +61,7 @@ export function IdeaCard({ note, onPress, onLongPress }: Props) {
               <Ionicons name="pin" size={11} color="rgba(255,255,255,0.5)" style={styles.pin} />
             )}
           </View>
-          {note.content.length > 0 && (
+          {(note.content ?? '').length > 0 && (
             <Text style={[styles.content, { color: colors.textSecondary }]} numberOfLines={2}>{note.content}</Text>
           )}
         </View>

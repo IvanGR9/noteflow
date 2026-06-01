@@ -31,7 +31,7 @@ export default function IdeasScreen() {
   const colors = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const allIdeas = useNotesStore((s) => s.ideas);
+  const allIdeas = useNotesStore((s) => s.ideas ?? []);
   const archiveIdea = useNotesStore((s) => s.archiveIdea);
   const deleteNote = useNotesStore((s) => s.deleteNote);
   const clearAllIdeas = useNotesStore((s) => s.clearAllIdeas);
@@ -43,7 +43,7 @@ export default function IdeasScreen() {
   const filtered = useMemo(() => {
     const list = allIdeas
       .filter((n) => !n.archived)
-      .filter((n) => n.title.toLowerCase().includes(searchQuery.toLowerCase()));
+      .filter((n) => (n.title ?? '').toLowerCase().includes(searchQuery.toLowerCase()));
 
     if (sortBy === 'date-desc') {
       return [...list].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -51,7 +51,7 @@ export default function IdeasScreen() {
     if (sortBy === 'date-asc') {
       return [...list].sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
     }
-    return [...list].sort((a, b) => a.title.localeCompare(b.title));
+    return [...list].sort((a, b) => (a.title ?? '').localeCompare(b.title ?? ''));
   }, [allIdeas, searchQuery, sortBy]);
 
   const handleLongPress = (item: IdeaNote) => {

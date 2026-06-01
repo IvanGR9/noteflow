@@ -50,11 +50,11 @@ export default function NoteDetailScreen() {
             <Text style={styles.pinnedText}>Fijada</Text>
           </View>
         )}
-        <Text style={styles.title}>{note.title}</Text>
+        <Text style={styles.title}>{note.title ?? ''}</Text>
         <Text style={styles.date}>{formatDate(note.updatedAt)}</Text>
-        {note.tags.length > 0 && (
+        {(note.tags ?? []).length > 0 && (
           <View style={styles.tagsRow}>
-            {note.tags.map((tag) => (
+            {(note.tags ?? []).map((tag) => (
               <View key={tag} style={styles.tag}>
                 <Text style={styles.tagText}>#{tag}</Text>
               </View>
@@ -62,7 +62,7 @@ export default function NoteDetailScreen() {
           </View>
         )}
         <View style={styles.divider} />
-        <Text style={styles.noteContent}>{note.content}</Text>
+        <Text style={styles.noteContent}>{note.content ?? ''}</Text>
       </ScrollView>
     </>
   );
