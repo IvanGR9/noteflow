@@ -32,6 +32,7 @@ Cada funcionalidad principal tiene su propia tarjeta con subtareas técnicas con
 8. **Pantallas de detalle** — `[id].tsx` para cada tipo con confirmación de borrado
 9. **Haptics y UX** — feedback táctil al eliminar y al completar checklists, estados vacíos
 10. **Documentación técnica** — `react-native-teoria.md`, `ai-setup.md` y `project-management.md`
+11. **Integración API REST** — conexión con backend externo, eliminación de AsyncStorage, `lib/api.ts`
 
 ---
 
@@ -42,6 +43,8 @@ Cada funcionalidad principal tiene su propia tarjeta con subtareas técnicas con
 **Las cards antes que las pantallas** — los componentes de tarjeta son la unidad visual más repetida de la app. Tenerlos terminados antes de construir las pantallas permite que FlashList los use directamente sin placeholders provisionales.
 
 **El formulario después de la navegación** — `nueva-nota.tsx` necesita conocer el sistema de rutas y el store para funcionar. Construirlo antes habría requerido mocks que luego hay que eliminar.
+
+**El backend antes de refactorizar el store** — crear y probar la API completa antes de tocar el store garantiza que el contrato entre cliente y servidor está validado. Refactorizar el store contra una API sin probar habría multiplicado los puntos de fallo.
 
 ---
 
@@ -59,3 +62,19 @@ Cada funcionalidad principal tiene su propia tarjeta con subtareas técnicas con
 | Pantallas de detalle | ✅ Done |
 | Haptics y UX | ✅ Done |
 | Documentación técnica | ✅ Done |
+| Integración API REST | ✅ Done |
+
+---
+
+## Integración con API REST (Fase 7)
+
+En la fase 7 NoteFlow dejó de guardar los datos en el dispositivo para conectarse a un backend real. Se creó un proyecto separado llamado `noteflow-api` con Next.js y PostgreSQL en Neon, desplegado en Vercel.
+
+Los cambios principales en la app móvil fueron:
+
+- Se creó `lib/api.ts` con funciones tipadas para cada endpoint de la API
+- Se refactorizó el store de Zustand eliminando la persistencia con AsyncStorage
+- La fuente de verdad ahora es el servidor — al arrancar la app se llama a `fetchNotes()` que carga todas las notas desde la API
+- Se añadieron `isLoading` y `error` al store para gestionar los estados de carga y error
+
+La API en producción está en `https://noteflow-api-three.vercel.app` y el repositorio del backend en `https://github.com/IvanGR9/noteflow-api`.
