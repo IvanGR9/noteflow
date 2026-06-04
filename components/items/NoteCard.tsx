@@ -12,7 +12,10 @@ interface Props {
 }
 
 function formatRelativeTime(dateStr: string): string {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  const diffMs = Date.now() - date.getTime();
   const diffMin = Math.floor(diffMs / 60_000);
 
   if (diffMin < 1) return 'ahora mismo';
@@ -24,7 +27,7 @@ function formatRelativeTime(dateStr: string): string {
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 7) return `hace ${diffDays} día${diffDays !== 1 ? 's' : ''}`;
 
-  return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
 export function NoteCard({ note, onPress, onLongPress }: Props) {
@@ -47,7 +50,7 @@ export function NoteCard({ note, onPress, onLongPress }: Props) {
         </View>
         <View style={styles.top}>
           <View style={styles.titleRow}>
-            <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{note.title}</Text>
+            <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{note.title ?? ''}</Text>
             {note.pinned && (
               <Ionicons name="pin" size={11} color={colors.textMuted} style={styles.pin} />
             )}

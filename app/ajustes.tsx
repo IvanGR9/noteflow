@@ -1,6 +1,7 @@
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import auth from '@react-native-firebase/auth';
 import { useNotesStore } from '../store/notesStore';
 import { useTheme } from '../hooks/useTheme';
 import { seedTestData } from '../lib/seedData';
@@ -44,6 +45,16 @@ export default function AjustesScreen() {
             </Text>
           </TouchableOpacity>
         )}
+
+        <View style={styles.spacer} />
+
+        <TouchableOpacity
+          style={styles.signOutButton}
+          onPress={() => auth().signOut()}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.signOutText}>Cerrar sesión</Text>
+        </TouchableOpacity>
       </View>
     </>
   );
@@ -78,5 +89,21 @@ const styles = StyleSheet.create({
   devButtonText: {
     fontSize: Typography.size.sm,
     fontWeight: Typography.weight.medium,
+  },
+  spacer: {
+    flex: 1,
+  },
+  signOutButton: {
+    paddingVertical: Spacing[4],
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.dark.destructive,
+    alignItems: 'center',
+    marginBottom: Spacing[4],
+  },
+  signOutText: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.dark.destructive,
   },
 });
