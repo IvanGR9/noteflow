@@ -32,7 +32,10 @@
     "plugins": [
       "expo-router",
       "@react-native-firebase/app",
-      "@react-native-firebase/auth"
+      "@react-native-firebase/auth",
+      ["@react-native-google-signin/google-signin", {
+        "iosUrlScheme": "com.googleusercontent.apps.315905142183-19edqim3uvhdla20qcps340prst2t7j2"
+      }]
     ],
     "extra": {
       "router": {},

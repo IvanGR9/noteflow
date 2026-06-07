@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "315905142183-l6srtcavqunbg2fd5sr6qupghuve3cjq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ivangr9.noteflow",
+            "certificate_hash": "a4345936b42cd2d2890c40b5d89b237ede00a837"
+          }
+        },
+        {
           "client_id": "315905142183-19edqim3uvhdla20qcps340prst2t7j2.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { Colors, Typography, Spacing, Radius } from '../constants/theme';
 
 const C = Colors.dark;
@@ -43,7 +44,14 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '315905142183-19edqim3uvhdla20qcps340prst2t7j2.apps.googleusercontent.com',
+    });
+  }, []);
 
   function toggleMode() {
     setMode((m) => (m === 'login' ? 'register' : 'login'));
@@ -84,6 +92,34 @@ export default function LoginScreen() {
       setError(mapFirebaseError(e.code ?? ''));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setError('');
+    setLoadingGoogle(true);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const { idToken } = await GoogleSignin.signIn();
+      const credential = auth.GoogleAuthProvider.credential(idToken);
+      const result = await auth().signInWithCredential(credential);
+
+      if (result.additionalUserInfo?.isNewUser) {
+        await firestore()
+          .collection('users')
+          .doc(result.user.uid)
+          .set({
+            name: result.user.displayName ?? '',
+            email: result.user.email ?? '',
+            createdAt: firestore.FieldValue.serverTimestamp(),
+            avatarUrl: null,
+          });
+      }
+    } catch (e: any) {
+      if (e.code === statusCodes.SIGN_IN_CANCELLED) return;
+      setError(mapFirebaseError(e.code ?? ''));
+    } finally {
+      setLoadingGoogle(false);
     }
   }
 
@@ -178,10 +214,21 @@ export default function LoginScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Google button (visual only) */}
-          <TouchableOpacity style={styles.googleButton} activeOpacity={0.85}>
-            <Text style={styles.googleIcon}>G</Text>
-            <Text style={styles.googleButtonText}>Continuar con Google</Text>
+          {/* Google Sign-In */}
+          <TouchableOpacity
+            style={[styles.googleButton, loadingGoogle && styles.primaryButtonDisabled]}
+            onPress={handleGoogleSignIn}
+            disabled={loadingGoogle || loading}
+            activeOpacity={0.85}
+          >
+            {loadingGoogle ? (
+              <ActivityIndicator color={C.text} />
+            ) : (
+              <>
+                <Text style={styles.googleIcon}>G</Text>
+                <Text style={styles.googleButtonText}>Continuar con Google</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
