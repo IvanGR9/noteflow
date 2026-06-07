@@ -100,22 +100,26 @@ export default function LoginScreen() {
     setLoadingGoogle(true);
     try {
       await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
+      await GoogleSignin.signOut();
+      const result = await GoogleSignin.signIn();
+      console.log('Google signIn result:', JSON.stringify(result, null, 2));
+      const { idToken } = result.data;
       const credential = auth.GoogleAuthProvider.credential(idToken);
-      const result = await auth().signInWithCredential(credential);
+      const userCredential = await auth().signInWithCredential(credential);
 
-      if (result.additionalUserInfo?.isNewUser) {
+      if (userCredential.additionalUserInfo?.isNewUser) {
         await firestore()
           .collection('users')
-          .doc(result.user.uid)
+          .doc(userCredential.user.uid)
           .set({
-            name: result.user.displayName ?? '',
-            email: result.user.email ?? '',
+            name: userCredential.user.displayName ?? '',
+            email: userCredential.user.email ?? '',
             createdAt: firestore.FieldValue.serverTimestamp(),
             avatarUrl: null,
           });
       }
     } catch (e: any) {
+      console.error('GoogleSignIn error:', e, JSON.stringify(e));
       if (e.code === statusCodes.SIGN_IN_CANCELLED) return;
       setError(mapFirebaseError(e.code ?? ''));
     } finally {
