@@ -105,7 +105,7 @@ type ChecklistFormHandle = { getData: () => { title: string; items: ChecklistDra
 const ChecklistForm = forwardRef<ChecklistFormHandle, { errors: ChecklistFormErrors; initialData?: ChecklistNote }>(({ errors, initialData }, ref) => {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [items, setItems] = useState<ChecklistDraftItem[]>(
-    initialData ? initialData.items.map((i) => ({ id: i.id, text: i.text })) : [{ id: newId(), text: '' }]
+    initialData ? (initialData.items ?? []).map((i) => ({ id: i.id, text: i.text })) : [{ id: newId(), text: '' }]
   );
 
   useImperativeHandle(ref, () => ({ getData: () => ({ title, items }) }));

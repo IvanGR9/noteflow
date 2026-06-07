@@ -13,6 +13,7 @@ import {
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Svg, { Line, Circle } from 'react-native-svg';
 import { Colors, Typography, Spacing, Radius } from '../constants/theme';
 
 const C = Colors.dark;
@@ -138,9 +139,21 @@ export default function LoginScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
+          <View style={styles.logoIcon}>
+            <Svg width={44} height={36} viewBox="0 0 44 36">
+              <Line x1="12" y1="8" x2="38" y2="8" stroke={C.border} strokeWidth="2.5" strokeLinecap="round" />
+              <Circle cx="8" cy="18" r="3.5" fill={C.accent} />
+              <Line x1="14" y1="18" x2="38" y2="18" stroke={C.text} strokeWidth="2.5" strokeLinecap="round" />
+              <Line x1="12" y1="28" x2="38" y2="28" stroke={C.border} strokeWidth="2.5" strokeLinecap="round" />
+            </Svg>
+          </View>
+
           <Text style={styles.logo}>noteflow</Text>
-          <Text style={styles.subtitle}>
-            {mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
+          <View style={styles.logoUnderline} />
+
+          <Text style={styles.subtitleMain}>Tu espacio personal</Text>
+          <Text style={styles.subtitleSub}>
+            {mode === 'login' ? 'para ideas, notas y tareas' : 'Crea tu cuenta'}
           </Text>
         </View>
 
@@ -266,17 +279,45 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: Spacing[8],
     alignItems: 'center',
+    gap: Spacing[2],
+  },
+  logoIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: C.surfaceElevated,
+    borderWidth: 1,
+    borderColor: C.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing[2],
+    shadowColor: C.accent,
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 10,
   },
   logo: {
-    fontSize: Typography.size['2xl'],
-    fontWeight: Typography.weight.bold,
+    fontSize: 42,
+    fontWeight: '800',
     color: C.accent,
-    letterSpacing: -0.5,
-    marginBottom: Spacing[2],
+    letterSpacing: -1.5,
   },
-  subtitle: {
-    fontSize: Typography.size.base,
+  logoUnderline: {
+    width: 40,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: C.accent,
+  },
+  subtitleMain: {
+    fontSize: 16,
+    fontWeight: '500',
     color: C.textSecondary,
+    marginTop: Spacing[2],
+  },
+  subtitleSub: {
+    fontSize: 14,
+    color: C.textMuted,
   },
   form: {
     gap: Spacing[4],
