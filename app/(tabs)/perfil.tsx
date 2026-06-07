@@ -29,6 +29,8 @@ export default function PerfilScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!uid) return;
@@ -57,8 +59,50 @@ export default function PerfilScreen() {
       quality: 0.8,
     });
 
-    if (!result.canceled) {
-      setLocalAvatar(result.assets[0].uri);
+    if (result.canceled || !uid) return;
+
+    const asset = result.assets[0];
+    const fileName = asset.fileName ?? `avatar_${uid}.jpg`;
+    const fileType = asset.mimeType ?? 'image/jpeg';
+
+    setUploading(true);
+    setSuccessMessage(null);
+
+    try {
+      const token = await auth().currentUser?.getIdToken();
+      const presignedRes = await fetch(
+        'https://noteflow-api-three.vercel.app/api/upload/presigned-url',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ fileName, fileType }),
+        }
+      );
+
+      if (!presignedRes.ok) throw new Error('Error al obtener URL de subida');
+      const { signedUrl, publicUrl } = await presignedRes.json();
+
+      const imageBlob = await fetch(asset.uri).then((r) => r.blob());
+      const s3Res = await fetch(signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': fileType },
+        body: imageBlob,
+      });
+
+      if (!s3Res.ok) throw new Error('Error al subir la imagen a S3');
+
+      await firestore().collection('users').doc(uid).update({ avatarUrl: publicUrl });
+
+      setLocalAvatar(asset.uri);
+      setSuccessMessage('Foto de perfil actualizada');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error('Upload error:', err);
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -89,12 +133,21 @@ export default function PerfilScreen() {
             )}
 
             <TouchableOpacity
-              style={[styles.changePhotoButton, { borderColor: Colors.dark.accent }]}
+              style={[styles.changePhotoButton, { borderColor: Colors.dark.accent, opacity: uploading ? 0.5 : 1 }]}
               onPress={pickImage}
               activeOpacity={0.75}
+              disabled={uploading}
             >
-              <Text style={styles.changePhotoText}>Cambiar foto de perfil</Text>
+              {uploading ? (
+                <ActivityIndicator size="small" color={Colors.dark.accent} />
+              ) : (
+                <Text style={styles.changePhotoText}>Cambiar foto de perfil</Text>
+              )}
             </TouchableOpacity>
+
+            {successMessage && (
+              <Text style={styles.successText}>{successMessage}</Text>
+            )}
           </View>
 
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -163,6 +216,11 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.sm,
     fontWeight: Typography.weight.medium,
     color: Colors.dark.accent,
+  },
+  successText: {
+    fontSize: Typography.size.sm,
+    color: Colors.dark.accent,
+    fontWeight: Typography.weight.medium,
   },
   card: {
     borderRadius: Radius.lg,
