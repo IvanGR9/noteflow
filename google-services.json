@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "315905142183",
+    "project_id": "noteflow-903d9",
+    "storage_bucket": "noteflow-903d9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315905142183:android:0819b2062dd778d7db5a82",
+        "android_client_info": {
+          "package_name": "com.ivangr9.noteflow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315905142183-19edqim3uvhdla20qcps340prst2t7j2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGOGPGiZhyS6bEvZcfovEc4vaYQDqDzZY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315905142183-19edqim3uvhdla20qcps340prst2t7j2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
