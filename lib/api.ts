@@ -1,10 +1,16 @@
+import auth from '@react-native-firebase/auth';
 import type { AnyNote, ChecklistItem, NoteType } from '../types';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = await auth().currentUser?.getIdToken();
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...init?.headers,
+    },
     ...init,
   });
   if (!res.ok) {
